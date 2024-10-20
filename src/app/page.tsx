@@ -1,5 +1,3 @@
-"use client";
-
 import { CreateNFTForm } from "./components/CreateNFTForm";
 import { LatestNFTList } from "./components/LatestNFTList";
 
