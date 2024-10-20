@@ -41,4 +41,4 @@ export const Footer: React.FC = () => {
       </a>
     </footer>
   );
-}
+};

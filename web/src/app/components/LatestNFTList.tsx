@@ -1,9 +1,10 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 export const LatestNFTList: React.FC = () => {
   // Mock data
 
-  const mockImage = (id: number) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`
+  const mockImage = (id: number) =>
+    `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`;
   const nfts = [
     {
       id: 1,
@@ -96,8 +97,18 @@ export const LatestNFTList: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">Latest NFTs Created</h2>
       <ul className="space-y-4">
         {nfts.map((nft) => (
-          <li key={nft.id} className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg shadow-md">
-            <Image src={nft.image} alt={nft.name} className="w-16 h-16 rounded-lg" width={640} height={256} unoptimized />
+          <li
+            key={nft.id}
+            className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg shadow-md"
+          >
+            <Image
+              src={nft.image}
+              alt={nft.name}
+              className="w-16 h-16 rounded-lg"
+              width={640}
+              height={256}
+              unoptimized
+            />
             <div>
               <h3 className="text-xl font-semibold">{nft.name}</h3>
               <p className="text-sm text-gray-400">{nft.description}</p>
@@ -108,4 +119,4 @@ export const LatestNFTList: React.FC = () => {
       </ul>
     </div>
   );
-}
+};

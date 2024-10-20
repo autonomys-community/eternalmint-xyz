@@ -16,17 +16,20 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Eternal Mint",
-  description: "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
+  description:
+    "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
   openGraph: {
     title: "Eternal Mint",
-    description: "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
+    description:
+      "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
     images: ["/path/to/your/image.jpg"],
     url: "https://yourwebsite.com",
   },
   twitter: {
     card: "summary_large_image",
     title: "Eternal Mint",
-    description: "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
+    description:
+      "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
     images: ["/path/to/your/image.jpg"],
   },
 };
@@ -41,9 +44,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-      <Web3Provider>
-        {children}
-      </Web3Provider>
+        <Web3Provider>
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );
