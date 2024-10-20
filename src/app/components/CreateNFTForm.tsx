@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from 'next/image';
 
-export default function NFTForm() {
-  const [formData, setFormData] = useState({
+interface FormData {
+  name: string;
+  supply: number;
+  description: string;
+  externalLink: string;
+  media: File | null;
+}
+
+export const CreateNFTForm: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     supply: 1,
     description: "",
@@ -11,26 +19,26 @@ export default function NFTForm() {
     media: null,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onDrop = (acceptedFiles: any[]) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     setFormData({ ...formData, media: acceptedFiles[0] });
-  };
+  }, [formData]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  };
+  }, [formData]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback( (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
     // Add your form submission logic here
-  };
+  }, [formData]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 bg-gray-900 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-white mb-4">Create NFT</h2>
       <div className="flex flex-col sm:flex-row gap-6">
         <div className="flex flex-col gap-4 flex-1">
           <div>

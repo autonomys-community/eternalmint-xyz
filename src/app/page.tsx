@@ -1,7 +1,7 @@
 "use client";
 
-import NFTForm from "./components/NFTForm";
-import NFTList from "./components/NFTList";
+import { CreateNFTForm } from "./components/CreateNFTForm";
+import { LatestNFTList } from "./components/LatestNFTList";
 
 export default function Home() {
   return (
@@ -10,8 +10,8 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Eternal Mint</h1>
         <p className="text-lg mt-2">Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.</p>
       </header>
-      <NFTForm />
-      <NFTList />
+      <CreateNFTForm />
+      <LatestNFTList />
     </div>
   );
 }
