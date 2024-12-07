@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import Image from "next/image";
 
 interface FormData {
   name: string;
@@ -21,25 +21,77 @@ export const CreateNFTForm: React.FC = () => {
     media: null,
   });
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFormData({ ...formData, media: acceptedFiles[0] });
-  }, [formData]);
+  const [fileError, setFileError] = useState<string | null>(null);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const onDrop = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (acceptedFiles: File[], rejectedFiles: any[]) => {
+      if (rejectedFiles.length > 0) {
+        const error = rejectedFiles[0].errors[0];
+        if (error.code === "file-too-large") {
+          setFileError("File is larger than 5MB.");
+        } else if (error.code === "file-invalid-type") {
+          setFileError("Only image files are accepted.");
+        } else {
+          setFileError("File not accepted.");
+        }
+        return;
+      }
+      setFileError(null);
+      setFormData({ ...formData, media: acceptedFiles[0] });
+    },
+    [formData]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/gif": [],
+      "image/webp": [],
+    },
+    maxSize:
+      parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE || "5") * 1024 * 1024, // 5MB
+  });
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
       setFormData({ ...formData, [name]: value });
     },
-    [formData],
+    [formData]
   );
 
-  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log(formData);
-    // Add your form submission logic here
-  }, [formData]);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("supply", formData.supply.toString());
+      data.append("description", formData.description);
+      data.append("externalLink", formData.externalLink);
+
+      if (formData.media) {
+        data.append("media", formData.media);
+      }
+
+      const response = await fetch("/api/mint", {
+        method: "POST",
+        body: data,
+      });
+
+      if (response.ok) {
+        // Handle success (e.g., show a success message or redirect)
+        console.log("NFT created successfully!");
+      } else {
+        // Handle errors
+        console.error("Failed to create NFT.");
+      }
+    },
+    [formData]
+  );
 
   return (
     <form
@@ -55,8 +107,8 @@ export const CreateNFTForm: React.FC = () => {
             </label>
             <input
               type="text"
-              id="nft_name"
-              name="nft_name"
+              id="name"
+              name="name"
               value={formData.name}
               onChange={handleChange}
               required
@@ -70,8 +122,8 @@ export const CreateNFTForm: React.FC = () => {
             </label>
             <input
               type="number"
-              id="nft_supply"
-              name="nft_supply"
+              id="supply"
+              name="supply"
               value={formData.supply}
               onChange={handleChange}
               required
@@ -84,8 +136,8 @@ export const CreateNFTForm: React.FC = () => {
               Description
             </label>
             <textarea
-              id="nft_description"
-              name="nft_description"
+              id="description"
+              name="description"
               value={formData.description}
               onChange={handleChange}
               className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
@@ -98,8 +150,8 @@ export const CreateNFTForm: React.FC = () => {
             </label>
             <input
               type="url"
-              id="nft_external_link"
-              name="nft_external_link"
+              id="externalLink"
+              name="externalLink"
               value={formData.externalLink}
               onChange={handleChange}
               className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
@@ -112,28 +164,28 @@ export const CreateNFTForm: React.FC = () => {
           className="flex-1 border-dashed border-2 border-gray-700 p-6 rounded-lg bg-gray-800 text-white cursor-pointer"
         >
           <input {...getInputProps()} />
-          {formData.media
-            ? (
-              <div>
-                <Image
-                  src={URL.createObjectURL(formData.media)}
-                  alt="Preview"
-                  className="w-full h-80 object-cover rounded-lg"
-                  width={640}
-                  height={256}
-                  unoptimized
-                />
-                <p className="mt-2 text-sm">{(formData.media as File).name}</p>
-              </div>
-            )
-            : isDragActive
-            ? <p>Drop the files here ...</p>
-            : (
-              <p>
-                Drag &apos;n&apos; drop some files here, or click to select
-                files
-              </p>
-            )}
+          {formData.media ? (
+            <div>
+              <Image
+                src={URL.createObjectURL(formData.media)}
+                alt="Preview"
+                className="w-full h-80 object-cover rounded-lg"
+                width={640}
+                height={256}
+                unoptimized
+              />
+              <p className="mt-2 text-sm">{(formData.media as File).name}</p>
+            </div>
+          ) : isDragActive ? (
+            <p>Drop the files here ...</p>
+          ) : (
+            <p>
+              Drag &apos;n&apos; drop some files here, or click to select files
+            </p>
+          )}
+          {fileError && (
+            <p className="mt-2 text-red-500 text-sm">{fileError}</p>
+          )}
         </div>
       </div>
 
