@@ -1,8 +1,8 @@
-import { Header } from "./components/Header";
-import { CreateNFTForm } from "./components/CreateNFTForm";
-import { LatestNFTList } from "./components/LatestNFTList";
-import { Footer } from "./components/Footer";
 import Image from "next/image";
+import { CreateNFTForm } from "../components/CreateNFTForm";
+import { Footer } from "../components/Footer";
+import { Header } from "../components/Header";
+import { LatestNFTList } from "../components/LatestNFTList";
 
 export default function Home() {
   return (
