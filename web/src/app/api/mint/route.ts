@@ -3,6 +3,7 @@ import {
   uploadFile,
   UploadFileStatus,
 } from "@autonomys/auto-drive";
+import { Contract, JsonRpcProvider } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 
 const urlFromCid = (cid: string) =>
@@ -21,6 +22,11 @@ export const POST = async (req: NextRequest) => {
       { message: "Network is not set" },
       { status: 500 }
     );
+  if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS)
+    return NextResponse.json(
+      { message: "Contract address is not set" },
+      { status: 500 }
+    );
 
   const MAX_SIZE =
     parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE || "5") * 1024 * 1024;
@@ -33,6 +39,7 @@ export const POST = async (req: NextRequest) => {
     const description = formData.get("description") as string;
     const externalLink = formData.get("externalLink") as string;
     const media = formData.get("media") as File | null;
+    const creator = formData.get("creator") as string;
 
     console.log("Received Data:", {
       name,
@@ -157,6 +164,31 @@ export const POST = async (req: NextRequest) => {
     console.log("Metadata URL:", metadataUrl);
 
     // Now we need to mint the NFT
+
+    const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+
+    const contract = new Contract(
+      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+      [
+        {
+          type: "function",
+          name: "mint",
+          inputs: [
+            { name: "creator", type: "address", internalType: "address" },
+            { name: "cid", type: "string", internalType: "string" },
+            { name: "supply", type: "uint256", internalType: "uint256" },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+      ],
+      provider
+    );
+
+    const tx = await contract.mint(creator, metadataUrl, supply);
+    console.log("Transaction:", tx);
+    const receipt = await tx.wait();
+    console.log("Receipt:", receipt);
 
     return NextResponse.json(
       { message: "NFT created successfully", mediaUrl },
