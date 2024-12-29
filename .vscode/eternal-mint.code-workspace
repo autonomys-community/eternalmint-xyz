@@ -11,6 +11,10 @@
     {
       "name": "contracts",
       "path": "../contracts"
+    },
+    {
+      "name": "subgraph",
+      "path": "../subgraph"
     }
   ],
   "settings": {
