@@ -12,6 +12,7 @@ export function handleNftMinted(event: NftMintedEvent): void {
   entity.creator = event.params.creator;
   entity.tokenId = event.params.tokenId;
   entity.supply = event.params.supply;
+  entity.cid = event.params.cid;
 
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;

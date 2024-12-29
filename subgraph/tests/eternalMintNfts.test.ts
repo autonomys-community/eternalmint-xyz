@@ -22,7 +22,8 @@ describe("Describe entity assertions", () => {
     );
     let tokenId = BigInt.fromI32(234);
     let supply = BigInt.fromI32(234);
-    let newNftMintedEvent = createNftMintedEvent(creator, tokenId, supply);
+    let cid = "QmQn321";
+    let newNftMintedEvent = createNftMintedEvent(creator, tokenId, supply, cid);
     handleNftMinted(newNftMintedEvent);
   });
 
