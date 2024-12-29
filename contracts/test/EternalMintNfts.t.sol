@@ -31,7 +31,7 @@ contract EternalMintNftsTest is Test {
     /**
      * @notice Tests that the admin has the DEFAULT_ADMIN_ROLE upon contract deployment.
      */
-    function test_AdminHasDefaultAdminRole() public {
+    function test_AdminHasDefaultAdminRole() public view {
         // Verify that the deployer has the DEFAULT_ADMIN_ROLE
         assertTrue(eternalMintNfts.hasRole(DEFAULT_ADMIN_ROLE, admin), "Admin should have DEFAULT_ADMIN_ROLE");
     }
@@ -97,7 +97,7 @@ contract EternalMintNftsTest is Test {
     /**
      * @notice Tests the `getTokenId` function to ensure it correctly derives the tokenId from a given CID.
      */
-    function test_GetTokenId() public {
+    function test_GetTokenId() public view {
         // Arrange
         string memory cid = "QmExampleCID1234567890";
         uint256 expectedTokenId = uint256(keccak256(abi.encodePacked(cid)));
@@ -162,7 +162,6 @@ contract EternalMintNftsTest is Test {
         // Arrange
         string memory cid = "QmDuplicateCID1234567890";
         uint256 supply = 2;
-        uint256 tokenId = eternalMintNfts.getTokenId(cid);
 
         // Admin grants MINTER_ROLE to the minter address
         eternalMintNfts.addMinter(minter);
@@ -205,7 +204,7 @@ contract EternalMintNftsTest is Test {
     /**
      * @notice Tests that the `supportsInterface` function correctly identifies implemented interfaces.
      */
-    function test_SupportsInterface() public {
+    function test_SupportsInterface() public view {
         // Define interface IDs
         bytes4 ERC1155_INTERFACE_ID = 0xd9b67a26;
         bytes4 ACCESS_CONTROL_INTERFACE_ID = 0x7965db0b;
