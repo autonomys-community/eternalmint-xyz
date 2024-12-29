@@ -1,8 +1,11 @@
 "use client";
 
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useAccount } from "wagmi";
 
 interface FormData {
   name: string;
@@ -10,18 +13,29 @@ interface FormData {
   description: string;
   externalLink: string;
   media: File | null;
+  creator: string;
 }
 
 export const CreateNFTForm: React.FC = () => {
+  const { address } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     supply: 1,
     description: "",
     externalLink: "",
     media: null,
+    creator: address || "",
   });
 
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+
+  useEffect(
+    () => setFormData((prevData) => ({ ...prevData, creator: address || "" })),
+    [address]
+  );
 
   const onDrop = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,28 +80,29 @@ export const CreateNFTForm: React.FC = () => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      setIsSubmitting(true);
 
       const data = new FormData();
       data.append("name", formData.name);
       data.append("supply", formData.supply.toString());
       data.append("description", formData.description);
       data.append("externalLink", formData.externalLink);
+      data.append("creator", formData.creator);
 
-      if (formData.media) {
-        data.append("media", formData.media);
-      }
+      if (formData.media) data.append("media", formData.media);
 
-      const response = await fetch("/api/mint", {
-        method: "POST",
-        body: data,
-      });
-
-      if (response.ok) {
-        // Handle success (e.g., show a success message or redirect)
-        console.log("NFT created successfully!");
-      } else {
-        // Handle errors
-        console.error("Failed to create NFT.");
+      try {
+        const response = await fetch("/api/mint", {
+          method: "POST",
+          body: data,
+        });
+        const result = await response.json();
+        if (response.ok) setTxHash(result.txHash);
+        else console.error("Failed to create NFT.");
+      } catch (error) {
+        console.error("Error during NFT creation:", error);
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [formData]
@@ -189,12 +204,40 @@ export const CreateNFTForm: React.FC = () => {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-      >
-        Create
-      </button>
+      {address ? (
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`p-3 text-white rounded-lg transition ${
+            isSubmitting ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {isSubmitting ? "Minting NFT in progress..." : "Create"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={openConnectModal}
+          className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+        >
+          Connect Wallet
+        </button>
+      )}
+
+      {txHash && (
+        <>
+          <p className="mt-4 text-green-500 text-sm">
+            NFT minted successfully! Transaction Hash: {txHash}
+          </p>
+          <Link
+            href={`https://blockscout.taurus.autonomys.xyz/tx/${txHash}`}
+            className="text-blue-500 hover:underline"
+            target="_blank"
+          >
+            View Transaction
+          </Link>
+        </>
+      )}
     </form>
   );
 };
