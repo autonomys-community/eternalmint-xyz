@@ -6,9 +6,9 @@ dataSources:
     name: EternalMintNfts
     network: autonomys-taurus
     source:
-      address: "0x8af3D339bA730C88ceC891Ac5B21D5d6255A62eD"
+      address: "0xd888fA1B6F2A2bE1B4CdED9bB67514f012D37d30"
       abi: EternalMintNfts
-      startBlock: 211833
+      startBlock: 211625
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,7 +21,7 @@ dataSources:
         - name: EternalMintNfts
           file: ./abis/EternalMintNfts.json
       eventHandlers:
-        - event: NftMinted(indexed address,indexed uint256,uint256)
+        - event: NftMinted(indexed address,indexed uint256,uint256,string)
           handler: handleNftMinted
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted

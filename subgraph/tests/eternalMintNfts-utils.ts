@@ -9,7 +9,8 @@ import {
 export function createNftMintedEvent(
   creator: Address,
   tokenId: BigInt,
-  supply: BigInt
+  supply: BigInt,
+  cid: string
 ): NftMinted {
   let nftMintedEvent = changetype<NftMinted>(newMockEvent());
 
@@ -26,6 +27,9 @@ export function createNftMintedEvent(
   );
   nftMintedEvent.parameters.push(
     new ethereum.EventParam("supply", ethereum.Value.fromUnsignedBigInt(supply))
+  );
+  nftMintedEvent.parameters.push(
+    new ethereum.EventParam("cid", ethereum.Value.fromString(cid))
   );
 
   return nftMintedEvent;
