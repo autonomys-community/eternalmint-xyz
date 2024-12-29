@@ -16,6 +16,14 @@ interface FormData {
   creator: string;
 }
 
+type NftDetails = {
+  txHash: string;
+  cids: {
+    image: string;
+    metadata: string;
+  };
+};
+
 export const CreateNFTForm: React.FC = () => {
   const { address } = useAccount();
   const { openConnectModal } = useConnectModal();
@@ -30,7 +38,7 @@ export const CreateNFTForm: React.FC = () => {
 
   const [fileError, setFileError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [nftDetails, setNftDetails] = useState<NftDetails | null>(null);
 
   useEffect(
     () => setFormData((prevData) => ({ ...prevData, creator: address || "" })),
@@ -97,7 +105,7 @@ export const CreateNFTForm: React.FC = () => {
           body: data,
         });
         const result = await response.json();
-        if (response.ok) setTxHash(result.txHash);
+        if (response.ok) setNftDetails(result);
         else console.error("Failed to create NFT.");
       } catch (error) {
         console.error("Error during NFT creation:", error);
@@ -224,18 +232,38 @@ export const CreateNFTForm: React.FC = () => {
         </button>
       )}
 
-      {txHash && (
+      {nftDetails && (
         <>
           <p className="mt-4 text-green-500 text-sm">
-            NFT minted successfully! Transaction Hash: {txHash}
+            NFT minted successfully! Transaction Hash: {nftDetails?.txHash}{" "}
+            <Link
+              href={`https://blockscout.taurus.autonomys.xyz/tx/${nftDetails?.txHash}`}
+              className="text-blue-500 hover:underline"
+              target="_blank"
+            >
+              View Transaction
+            </Link>
           </p>
-          <Link
-            href={`https://blockscout.taurus.autonomys.xyz/tx/${txHash}`}
-            className="text-blue-500 hover:underline"
-            target="_blank"
-          >
-            View Transaction
-          </Link>
+          <p className="mt-4 text-green-500 text-sm">
+            Image CID: {nftDetails?.cids?.image}{" "}
+            <Link
+              href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${nftDetails?.cids?.image}`}
+              className="text-blue-500 hover:underline"
+              target="_blank"
+            >
+              View Image
+            </Link>
+          </p>
+          <p className="mt-4 text-green-500 text-sm">
+            Metadata CID: {nftDetails?.cids?.metadata}{" "}
+            <Link
+              href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${nftDetails?.cids?.metadata}`}
+              className="text-blue-500 hover:underline"
+              target="_blank"
+            >
+              View Metadata
+            </Link>
+          </p>
         </>
       )}
     </form>
