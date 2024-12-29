@@ -1,6 +1,6 @@
-import { Header } from "../components/Header";
-import { LatestNFTList } from "../components/LatestNFTList";
-import { Footer } from "../components/Footer";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { LatestNFTList } from "@/components/LatestNFTList";
 
 export default function BrowsePage() {
   return (
