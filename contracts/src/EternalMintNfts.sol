@@ -1,8 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
-
-import "@openzeppelin/contracts/access/AccessControl.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract EternalMintNfts is ERC1155("https://eternal-mint.xyz/token/{id}"), AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -13,10 +12,14 @@ contract EternalMintNfts is ERC1155("https://eternal-mint.xyz/token/{id}"), Acce
         address creator;
         string cid;
     }
+
     // Mapping from token ID to metadata
     mapping(uint256 => Token) public tokens;
+
     // Array of all token IDs
     uint256[] public tokenIds;
+
+    event NftMinted(address indexed creator, uint256 indexed tokenId, uint256 supply);
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -78,6 +81,7 @@ contract EternalMintNfts is ERC1155("https://eternal-mint.xyz/token/{id}"), Acce
         tokens[tokenId] = Token({supply: supply, creator: creator, cid: cid});
         tokenIds.push(tokenId);
         _mint(creator, tokenId, supply, "");
+        emit NftMinted(creator, tokenId, supply);
     }
 
     /**
