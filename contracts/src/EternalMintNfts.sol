@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract EternalMintNfts is ERC1155("https://eternal-mint.xyz/token/{id}"), AccessControl {
+contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Struct to store token details
@@ -23,6 +23,7 @@ contract EternalMintNfts is ERC1155("https://eternal-mint.xyz/token/{id}"), Acce
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
     }
 
     /**
