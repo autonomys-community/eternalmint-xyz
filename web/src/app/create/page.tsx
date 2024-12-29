@@ -1,6 +1,6 @@
-import { Header } from "../components/Header";
-import { CreateNFTForm } from "../components/CreateNFTForm";
-import { Footer } from "../components/Footer";
+import { CreateNFTForm } from "@/components/CreateNFTForm";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 
 export default function CreatePage() {
   return (

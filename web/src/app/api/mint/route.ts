@@ -3,7 +3,7 @@ import {
   uploadFile,
   UploadFileStatus,
 } from "@autonomys/auto-drive";
-import { Contract, JsonRpcProvider, Signer, Wallet } from "ethers";
+import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 
 const urlFromCid = (cid: string) =>

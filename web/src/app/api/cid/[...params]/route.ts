@@ -89,6 +89,7 @@ export const GET = async (req: NextRequest) => {
 
     // Step 5: Send the query and handle the response
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await client.request(query, variables);
       console.log(data);
 
@@ -150,12 +151,7 @@ export const GET = async (req: NextRequest) => {
             dataArrayBuffer = new Uint8Array([
               ...new Uint8Array(dataArrayBuffer),
               ...new Uint8Array(newData),
-            ]);
-            // console.log('_data', _data)
-            // if (rawData.length > 0) {
-            //   rawData = rawData.slice(0, -1)
-            //   rawData += ','
-            // }
+            ]).buffer;
             rawData = _data;
             index++;
           }
