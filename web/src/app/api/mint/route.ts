@@ -166,7 +166,7 @@ export const POST = async (req: NextRequest) => {
 
     // Now we need to mint the NFT
 
-    const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
     const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
     const contract = new Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
