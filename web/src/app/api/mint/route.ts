@@ -191,7 +191,15 @@ export const POST = async (req: NextRequest) => {
     console.log("Receipt:", receipt);
 
     return NextResponse.json(
-      { message: "NFT created successfully", mediaUrl, txHash: tx.hash },
+      {
+        message: "NFT created successfully",
+        mediaUrl,
+        txHash: tx.hash,
+        cids: {
+          image: uploadResponse.cid?.toString(),
+          metadata: metadataUploadResponse.cid?.toString(),
+        },
+      },
       { status: 200 }
     );
   } catch (error) {
