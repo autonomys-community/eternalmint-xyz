@@ -3,7 +3,7 @@ import {
   uploadFile,
   UploadFileStatus,
 } from "@autonomys/auto-drive";
-import { Contract, JsonRpcProvider } from "ethers";
+import { Contract, JsonRpcProvider, Signer, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 
 const urlFromCid = (cid: string) =>
@@ -27,12 +27,18 @@ export const POST = async (req: NextRequest) => {
       { message: "Contract address is not set" },
       { status: 500 }
     );
+  if (!process.env.PRIVATE_KEY)
+    return NextResponse.json(
+      { message: "Private key is not set" },
+      { status: 500 }
+    );
 
   const MAX_SIZE =
     parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE || "5") * 1024 * 1024;
 
   try {
     const formData = await req.formData();
+    console.log("Form Data:", formData);
 
     const name = formData.get("name") as string;
     const supply = parseInt(formData.get("supply") as string, 10);
@@ -112,8 +118,6 @@ export const POST = async (req: NextRequest) => {
 
     mediaUrl = urlFromCid(uploadResponse.cid?.toString() || "");
 
-    console.log("Media URL:", mediaUrl);
-
     const metadata = {
       description,
       external_url: externalLink,
@@ -158,15 +162,12 @@ export const POST = async (req: NextRequest) => {
     );
 
     console.log("Final Upload Response:", metadataUploadResponse);
-
     metadataUrl = urlFromCid(metadataUploadResponse.cid?.toString() || "");
-
-    console.log("Metadata URL:", metadataUrl);
 
     // Now we need to mint the NFT
 
     const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
-
+    const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
     const contract = new Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
       [
@@ -182,16 +183,15 @@ export const POST = async (req: NextRequest) => {
           stateMutability: "nonpayable",
         },
       ],
-      provider
+      wallet
     );
-
     const tx = await contract.mint(creator, metadataUrl, supply);
-    console.log("Transaction:", tx);
+
     const receipt = await tx.wait();
     console.log("Receipt:", receipt);
 
     return NextResponse.json(
-      { message: "NFT created successfully", mediaUrl },
+      { message: "NFT created successfully", mediaUrl, txHash: tx.hash },
       { status: 200 }
     );
   } catch (error) {
