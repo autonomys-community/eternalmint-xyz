@@ -9,6 +9,8 @@ import { NextRequest, NextResponse } from "next/server";
 const urlFromCid = (cid: string) =>
   `${process.env.NEXT_PUBLIC_HOST}/api/cid/${process.env.NEXT_PUBLIC_NETWORK}/${cid}`;
 
+export const maxDuration = 60;
+
 export const POST = async (req: NextRequest) => {
   if (!process.env.AUTO_DRIVE_API_KEY)
     return NextResponse.json(
