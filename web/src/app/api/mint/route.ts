@@ -58,7 +58,7 @@ export const POST = async (req: NextRequest) => {
     });
 
     let mediaUrl = "";
-    let metadataUrl = "";
+    const metadataUrl = "";
 
     if (!media)
       return NextResponse.json(
@@ -165,7 +165,6 @@ export const POST = async (req: NextRequest) => {
     const cid = metadataUploadResponse.cid?.toString() || "";
 
     console.log("Final Upload Response:", metadataUploadResponse);
-    metadataUrl = urlFromCid(cid);
 
     // Now we need to mint the NFT
 
