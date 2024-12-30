@@ -162,9 +162,10 @@ export const POST = async (req: NextRequest) => {
         });
       }
     );
+    const cid = metadataUploadResponse.cid?.toString() || "";
 
     console.log("Final Upload Response:", metadataUploadResponse);
-    metadataUrl = urlFromCid(metadataUploadResponse.cid?.toString() || "");
+    metadataUrl = urlFromCid(cid);
 
     // Now we need to mint the NFT
 
@@ -187,7 +188,7 @@ export const POST = async (req: NextRequest) => {
       ],
       wallet
     );
-    const tx = await contract.mint(creator, metadataUrl, supply);
+    const tx = await contract.mint(creator, cid, supply);
 
     const receipt = await tx.wait();
     console.log("Receipt:", receipt);
