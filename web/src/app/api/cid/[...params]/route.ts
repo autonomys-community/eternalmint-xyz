@@ -1,5 +1,6 @@
 import { gql, GraphQLClient } from "graphql-request";
 import { NextRequest, NextResponse } from "next/server";
+// @ts-expect-error no types
 import { Zlib } from "zlibjs/bin/zlib_and_gzip.min.js";
 
 const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
