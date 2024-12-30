@@ -58,7 +58,6 @@ export const POST = async (req: NextRequest) => {
     });
 
     let mediaUrl = "";
-    const metadataUrl = "";
 
     if (!media)
       return NextResponse.json(
