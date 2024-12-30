@@ -8,6 +8,7 @@ type NftMinted = {
   tokenId: number;
   creator: string;
   supply: number;
+  cid: string;
   blockNumber: number;
   blockTimestamp: number;
 };
@@ -19,6 +20,7 @@ type NFT = {
   description: string;
   creator: string;
   quantity: number;
+  cid: string;
 };
 
 export const LatestNFTList: React.FC = () => {
@@ -39,6 +41,7 @@ export const LatestNFTList: React.FC = () => {
                 tokenId
                 creator
                 supply
+                cid
                 blockNumber
                 blockTimestamp
               }
@@ -54,6 +57,7 @@ export const LatestNFTList: React.FC = () => {
         name: `NFT ${item.tokenId}`,
         description: `Created by ${item.creator}`,
         quantity: item.supply,
+        cid: item.cid,
       }));
       setNfts(transformedNfts);
     };
@@ -82,6 +86,7 @@ export const LatestNFTList: React.FC = () => {
               <h3 className="text-xl font-semibold">{nft.name}</h3>
               <p className="text-sm text-gray-400">{nft.description}</p>
               <p className="text-sm text-gray-400">Quantity: {nft.quantity}</p>
+              <p className="text-sm text-gray-400">CID: {nft.cid}</p>
             </div>
           </li>
         ))}
