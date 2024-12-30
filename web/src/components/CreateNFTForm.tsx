@@ -1,5 +1,6 @@
 "use client";
 
+import { sendGAEvent } from "@next/third-parties/google";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
@@ -61,6 +62,9 @@ export const CreateNFTForm: React.FC = () => {
       }
       setFileError(null);
       setFormData({ ...formData, media: acceptedFiles[0] });
+      sendGAEvent("event", "mint_image_selected", {
+        value: (acceptedFiles[0] as File).name,
+      });
     },
     [formData]
   );
@@ -88,6 +92,7 @@ export const CreateNFTForm: React.FC = () => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      sendGAEvent("event", "mint_started", { value: formData.name });
       setIsSubmitting(true);
 
       const data = new FormData();
@@ -105,8 +110,10 @@ export const CreateNFTForm: React.FC = () => {
           body: data,
         });
         const result = await response.json();
-        if (response.ok) setNftDetails(result);
-        else console.error("Failed to create NFT.");
+        if (response.ok) {
+          setNftDetails(result);
+          sendGAEvent("event", "minted", { value: result.txHash });
+        } else console.error("Failed to create NFT.");
       } catch (error) {
         console.error("Error during NFT creation:", error);
       } finally {
