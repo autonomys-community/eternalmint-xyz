@@ -104,7 +104,7 @@ export const GET = async (req: NextRequest) => {
             dataArrayBuffer = new Uint8Array([
               ...new Uint8Array(dataArrayBuffer),
               ...new Uint8Array(newData),
-            ]);
+            ]).buffer;
             rawData = _data;
             index++;
           }
