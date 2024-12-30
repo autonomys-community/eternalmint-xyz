@@ -1,5 +1,7 @@
 import { gql, GraphQLClient } from "graphql-request";
 import { NextRequest, NextResponse } from "next/server";
+// @ts-expect-error no types
+import { Zlib } from "zlibjs/bin/zlib_and_gzip.min.js";
 
 const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   const bytes = [...new Uint8Array(arrayBuffer.slice(0, 4))]
@@ -51,29 +53,10 @@ export const GET = async (req: NextRequest) => {
     // Step 3: Write your query
     const query = gql`
       query GetCID($cid: String!) {
-        files_metadata(where: { id: { _eq: $cid } }) {
-          chunk {
-            data
-          }
-          metadata_cids {
-            chunk {
-              data
-            }
-          }
-        }
-        files_folders(where: { id: { _eq: $cid } }) {
-          chunk {
-            data
-          }
-          folder_cids {
-            chunk {
-              data
-            }
-          }
-        }
         files_files(where: { id: { _eq: $cid } }) {
           chunk {
             data
+            uploadOptions: upload_options
           }
           file_cids {
             chunk {
@@ -93,46 +76,16 @@ export const GET = async (req: NextRequest) => {
       const data: any = await client.request(query, variables);
       console.log(data);
 
-      if (
-        data.files_metadata.length === 0 &&
-        data.files_folders.length === 0 &&
-        data.files_files.length === 0
-      ) {
+      if (data.files_files.length === 0) {
         return NextResponse.json(
           { success: false, message: "CID not found" },
           { status: 404 }
         );
       }
-      let type: string | null = null;
       let rawData: string = "";
       let dataArrayBuffer: ArrayBuffer = new ArrayBuffer(0);
       let depth = 0;
-      if (data.files_metadata.length > 0) {
-        type = "metadata";
-        if (data.files_files.length === 0) {
-          rawData = data.files_files[0].chunk.data;
-        } else {
-          depth = data.files_files.length;
-          while (depth > 0) {
-            rawData = rawData.slice(0, -1);
-            rawData += "," + data.files_files[depth - 1].chunk.data;
-            depth--;
-          }
-        }
-      } else if (data.files_folders.length > 0) {
-        type = "folder";
-        if (data.files_files.length === 0) {
-          rawData = data.files_files[0].chunk.data;
-        } else {
-          depth = data.files_files.length;
-          while (depth > 0) {
-            rawData = rawData.slice(0, -1);
-            rawData += "," + data.files_files[depth - 1].chunk.data;
-            depth--;
-          }
-        }
-      } else if (data.files_files.length > 0) {
-        type = "file";
+      if (data.files_files.length > 0) {
         if (data.files_files[0].file_cids.length === 0) {
           console.log("no file cids");
           rawData = data.files_files[0].chunk.data;
@@ -157,7 +110,25 @@ export const GET = async (req: NextRequest) => {
           }
         }
       }
-      console.log("type", type);
+
+      try {
+        const uploadOptions = data.files_files[0].chunk.uploadOptions
+          ? JSON.parse(data.files_files[0].chunk.uploadOptions)
+          : null;
+        if (uploadOptions && uploadOptions.compression?.algorithm === "ZLIB") {
+          const inflate = new Zlib.Inflate(new Uint8Array(dataArrayBuffer), {
+            index: 0,
+            bufferSize: 1024,
+            bufferType: Zlib.Inflate.BufferType.BLOCK,
+            resize: true,
+            verify: true,
+          });
+          dataArrayBuffer = inflate.decompress();
+        }
+      } catch (error) {
+        console.error("Error decompressing data:", error);
+      }
+
       console.log("rawData", rawData.slice(0, 12));
       console.log("rawData", rawData.slice(-12));
 
