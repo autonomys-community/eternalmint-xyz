@@ -19,7 +19,7 @@ contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), Acc
     // Array of all token IDs
     uint256[] public tokenIds;
 
-    event NftMinted(address indexed creator, uint256 indexed tokenId, uint256 supply);
+    event NftMinted(address indexed creator, uint256 indexed tokenId, uint256 supply, string cid);
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -82,7 +82,8 @@ contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), Acc
         tokens[tokenId] = Token({supply: supply, creator: creator, cid: cid});
         tokenIds.push(tokenId);
         _mint(creator, tokenId, supply, "");
-        emit NftMinted(creator, tokenId, supply);
+        
+        emit NftMinted(creator, tokenId, supply, cid);
     }
 
     /**

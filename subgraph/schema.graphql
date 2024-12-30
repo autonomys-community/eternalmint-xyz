@@ -3,6 +3,7 @@ type NftMinted @entity(immutable: true) {
   creator: Bytes! # address
   tokenId: BigInt! # uint256
   supply: BigInt! # uint256
+  cid: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

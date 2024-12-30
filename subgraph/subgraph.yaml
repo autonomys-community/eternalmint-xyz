@@ -21,7 +21,7 @@ dataSources:
         - name: EternalMintNfts
           file: ./abis/EternalMintNfts.json
       eventHandlers:
-        - event: NftMinted(indexed address,indexed uint256,uint256)
+        - event: NftMinted(indexed address,indexed uint256,uint256,string)
           handler: handleNftMinted
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
