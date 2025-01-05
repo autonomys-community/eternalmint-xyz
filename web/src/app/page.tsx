@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CreateNFTForm } from "../components/CreateNFTForm";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
