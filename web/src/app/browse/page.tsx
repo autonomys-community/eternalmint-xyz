@@ -4,7 +4,7 @@ import { LatestNFTList } from "@/components/LatestNFTList";
 
 export default function BrowsePage() {
   return (
-    <div className="min-h-screen p-8 pb-20 sm:p-20 bg-gray-900 text-white">
+    <div className="min-h-screen p-8 pb-20 sm:p-20 text-white">
       <Header />
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold">Browse NFTs</h1>

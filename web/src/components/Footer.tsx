@@ -2,7 +2,7 @@ import { FaGithub, FaHeart, FaLinkedin, FaTwitter } from "react-icons/fa";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="flex justify-center items-center bg-gray-900 text-white py-4 w-full fixed bottom-0">
+    <footer className="flex justify-center items-center text-white py-4 w-full fixed bottom-0">
       <a
         href="https://github.com/marc-aurele-besner/eternalmint-xyz"
         target="_blank"
