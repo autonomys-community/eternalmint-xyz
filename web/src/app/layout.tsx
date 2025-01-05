@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
+import { Manrope } from "next/font/google";
 import localFont from "next/font/local";
 import { Web3Provider } from "../providers/Web3Provider";
 import "./globals.css";
@@ -13,6 +14,12 @@ const geistMono = localFont({
   src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-manrope",
 });
 
 export const metadata: Metadata = {
@@ -46,7 +53,7 @@ export default function RootLayout({
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
       )}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`bg-custom-bg bg-no-repeat bg-cover ${geistSans.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
       >
         <Web3Provider>{children}</Web3Provider>
       </body>
