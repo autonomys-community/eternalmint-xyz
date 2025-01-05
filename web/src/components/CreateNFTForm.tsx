@@ -126,37 +126,56 @@ export const CreateNFTForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6 p-6 bg-gray-900 rounded-lg shadow-lg"
+      className="flex flex-col gap-6 p-6 rounded-lg shadow-lg"
     >
-      <h2 className="text-2xl font-bold text-white mb-4">Create NFT</h2>
+      <h2 className="text-2xl font-bold text-white">Create New NFT</h2>
+      <h4 className="text-white mb-4">
+        Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.
+      </h4>
       <div className="flex flex-col sm:flex-row gap-6">
         <div className="flex flex-col gap-4 flex-1">
-          <div>
-            <label htmlFor="name" className="block mb-2 text-white">
-              Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
-            />
+          <div className="flex gap-4">
+            <div className="w-4/5">
+              <label htmlFor="name" className="block mb-2 text-white">
+                Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+              />
+            </div>
+
+            <div className="w-1/5">
+              <label htmlFor="supply" className="block mb-2 text-white">
+                Supply *
+              </label>
+              <input
+                type="number"
+                id="supply"
+                name="supply"
+                value={formData.supply}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+              />
+            </div>
           </div>
 
           <div>
-            <label htmlFor="supply" className="block mb-2 text-white">
-              Supply *
+            <label htmlFor="externalLink" className="block mb-2 text-white">
+              External Link
             </label>
             <input
-              type="number"
-              id="supply"
-              name="supply"
-              value={formData.supply}
+              type="url"
+              id="externalLink"
+              name="externalLink"
+              value={formData.externalLink}
               onChange={handleChange}
-              required
               className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
             />
           </div>
@@ -169,20 +188,6 @@ export const CreateNFTForm: React.FC = () => {
               id="description"
               name="description"
               value={formData.description}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="externalLink" className="block mb-2 text-white">
-              External Link
-            </label>
-            <input
-              type="url"
-              id="externalLink"
-              name="externalLink"
-              value={formData.externalLink}
               onChange={handleChange}
               className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
             />
