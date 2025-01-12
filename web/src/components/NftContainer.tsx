@@ -18,14 +18,19 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
     }
   };
 
+  const metadataCid = useMemo(
+    () => (nft && nft.cid ? nft.cid.split("/").pop() : null),
+    [nft]
+  );
+
   const imageCid = useMemo(
     () => (metadata && metadata.image ? metadata.image.split("/").pop() : null),
     [metadata]
   );
 
   useEffect(() => {
-    handleLoadMetadata(nft.cid);
-  }, [nft.cid]);
+    if (metadataCid) handleLoadMetadata(metadataCid);
+  }, [metadataCid]);
 
   return (
     <li
@@ -61,6 +66,14 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
               target="_blank"
             >
               {imageCid.slice(0, 6)}...{imageCid.slice(-6)}
+            </Link>
+          </p>
+        )}
+        {metadata && metadata.external_url && (
+          <p className="text-sm text-gray-400 break-all">
+            External URL:{" "}
+            <Link href={metadata.external_url} target="_blank">
+              {metadata.external_url}
             </Link>
           </p>
         )}
