@@ -143,6 +143,7 @@ export const CreateNFTForm: React.FC = () => {
                 type="text"
                 id="name"
                 name="name"
+                disabled={isSubmitting}
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -158,6 +159,7 @@ export const CreateNFTForm: React.FC = () => {
                 type="number"
                 id="supply"
                 name="supply"
+                disabled={isSubmitting}
                 value={formData.supply}
                 onChange={handleChange}
                 required
@@ -174,6 +176,7 @@ export const CreateNFTForm: React.FC = () => {
               type="url"
               id="externalLink"
               name="externalLink"
+              disabled={isSubmitting}
               value={formData.externalLink}
               onChange={handleChange}
               className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
@@ -187,6 +190,7 @@ export const CreateNFTForm: React.FC = () => {
             <textarea
               id="description"
               name="description"
+              disabled={isSubmitting}
               value={formData.description}
               onChange={handleChange}
               className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
@@ -198,7 +202,7 @@ export const CreateNFTForm: React.FC = () => {
                 [border-image-slice:1] [border-image-width:1] mt-2
                 [border-image-source:linear-gradient(to_right,#1E58FC,#D914E4,#F10419)]"
             >
-              <input {...getInputProps()} />
+              <input {...getInputProps()} disabled={isSubmitting} />
               {formData.media ? (
                 <div>
                   <Image
