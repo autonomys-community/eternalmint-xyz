@@ -126,7 +126,7 @@ export const CreateNFTForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6 p-6 rounded-lg shadow-lg"
+      className="flex flex-col gap-6 px-10 py-6 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
     >
       <h2 className="text-2xl font-bold text-white">Create New NFT</h2>
       <h4 className="text-white mb-4">
@@ -146,7 +146,7 @@ export const CreateNFTForm: React.FC = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
               />
             </div>
 
@@ -161,7 +161,7 @@ export const CreateNFTForm: React.FC = () => {
                 value={formData.supply}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
               />
             </div>
           </div>
@@ -176,7 +176,7 @@ export const CreateNFTForm: React.FC = () => {
               name="externalLink"
               value={formData.externalLink}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
             />
           </div>
 
@@ -189,60 +189,96 @@ export const CreateNFTForm: React.FC = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-800 text-white"
+              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
             />
+
+            <div
+              {...getRootProps()}
+              className="flex-1 cursor-pointer p-3 rounded-lg text-white bg-white/10 border-2 border-dashed border-transparent overflow-hidden
+                [border-image-slice:1] [border-image-width:1] mt-2
+                [border-image-source:linear-gradient(to_right,#1E58FC,#D914E4,#F10419)]"
+            >
+              <input {...getInputProps()} />
+              {formData.media ? (
+                <div>
+                  <Image
+                    src={URL.createObjectURL(formData.media)}
+                    alt="Preview"
+                    className="w-full h-80 max-h-[160px] object-cover rounded-lg"
+                    width={640}
+                    height={256}
+                    unoptimized
+                  />
+                  <p className="mt-1 p-0 text-sm">
+                    {(formData.media as File).name}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <Image
+                    src="/images/icons/download.svg"
+                    alt="Drop Image"
+                    className="w-16 h-16 object-cover rounded-lg"
+                    width={16}
+                    height={16}
+                    unoptimized
+                  />
+                  <h3 className="text-white text-xl font-bold">Upload Image</h3>
+                  {isDragActive ? (
+                    <p>Drop the files here ...</p>
+                  ) : (
+                    <p className="text-white">
+                      Drag &apos;n&apos; Drop A File Here, Or Click To Select A
+                      File
+                    </p>
+                  )}
+                </div>
+              )}
+              {fileError && (
+                <p className="mt-2 text-red-500 text-sm">{fileError}</p>
+              )}
+            </div>
           </div>
+
+          {address ? (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`p-3 text-white rounded-lg transition ${
+                isSubmitting ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {isSubmitting ? "Minting NFT in progress..." : "Create"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openConnectModal}
+              className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Connect Wallet
+            </button>
+          )}
         </div>
 
         <div
           {...getRootProps()}
-          className="flex-1 border-dashed border-2 border-gray-700 p-6 rounded-lg bg-gray-800 text-white cursor-pointer"
+          className="flex-1 w-full border border-white/15 rounded-lg bg-white/10 flex items-center justify-center"
         >
-          <input {...getInputProps()} />
-          {formData.media ? (
-            <div>
-              <Image
-                src={URL.createObjectURL(formData.media)}
-                alt="Preview"
-                className="w-full h-80 object-cover rounded-lg"
-                width={640}
-                height={256}
-                unoptimized
-              />
-              <p className="mt-2 text-sm">{(formData.media as File).name}</p>
-            </div>
-          ) : isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>
-              Drag &apos;n&apos; drop some files here, or click to select files
-            </p>
-          )}
-          {fileError && (
-            <p className="mt-2 text-red-500 text-sm">{fileError}</p>
-          )}
+          <Image
+            src={
+              formData.media
+                ? URL.createObjectURL(formData.media)
+                : "/images/image-example.png"
+            }
+            alt={formData.media ? (formData.media as File).name : "Preview"}
+            className="h-full max-h-[520px] max-w-[450px] w-full object-cover rounded-lg"
+            width={640}
+            height={256}
+            unoptimized
+          />
         </div>
       </div>
-
-      {address ? (
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`p-3 text-white rounded-lg transition ${
-            isSubmitting ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isSubmitting ? "Minting NFT in progress..." : "Create"}
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={openConnectModal}
-          className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-        >
-          Connect Wallet
-        </button>
-      )}
 
       {nftDetails && (
         <>
