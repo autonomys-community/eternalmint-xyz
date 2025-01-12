@@ -1,13 +1,15 @@
 "use client";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { Routes } from "../constants/routes";
+
 export const Header: React.FC = () => {
   const pathname = usePathname();
+  const { openConnectModal } = useConnectModal();
 
   const font = "font-manrope font-extrabold";
   const hover =
@@ -46,7 +48,13 @@ export const Header: React.FC = () => {
         >
           Browse NFTs
         </Link>
-        <ConnectButton />
+        <button
+          type="button"
+          onClick={openConnectModal}
+          className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
+        >
+          Connect Wallet
+        </button>
       </nav>
     </header>
   );
