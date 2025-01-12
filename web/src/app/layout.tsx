@@ -56,6 +56,7 @@ export default function RootLayout({
         className={`bg-custom-bg bg-no-repeat bg-cover ${geistSans.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
       >
         <Web3Provider>{children}</Web3Provider>
+        <div className="h-[10px] bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419]"></div>
       </body>
     </html>
   );
