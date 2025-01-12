@@ -5,7 +5,7 @@ import { LatestNFTList } from "../components/LatestNFTList";
 
 export default function Home() {
   return (
-    <div className="min-h-screen p-8 pb-20 sm:p-20 text-white">
+    <div className="min-h-screen p-4 pb-12 sm:px-40 text-white">
       <Header />
       <CreateNFTForm />
       <LatestNFTList />

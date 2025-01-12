@@ -66,13 +66,13 @@ export const LatestNFTList: React.FC = () => {
   }, []);
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 mb-4">
       <h2 className="text-2xl font-bold mb-4">Latest NFTs Created</h2>
-      <ul className="space-y-4">
+      <ul className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {nfts.map((nft) => (
           <li
             key={nft.id}
-            className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg shadow-md"
+            className="flex flex-col gap-6 p-4 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
           >
             <Image
               src={nft.image}
