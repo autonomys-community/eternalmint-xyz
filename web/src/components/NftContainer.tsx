@@ -64,6 +64,14 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
             </Link>
           </p>
         )}
+        {metadata && metadata.external_url && (
+          <p className="text-sm text-gray-400 break-all">
+            External URL:{" "}
+            <Link href={metadata.external_url} target="_blank">
+              {metadata.external_url}
+            </Link>
+          </p>
+        )}
       </div>
     </li>
   );
