@@ -244,7 +244,7 @@ export const CreateNFTForm: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`p-3 text-white rounded-lg transition ${
+              className={`px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition ${
                 isSubmitting ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
@@ -254,7 +254,7 @@ export const CreateNFTForm: React.FC = () => {
             <button
               type="button"
               onClick={openConnectModal}
-              className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
             >
               Connect Wallet
             </button>
