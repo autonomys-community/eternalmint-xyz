@@ -1,27 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
-
-type NftMinted = {
-  id: string;
-  tokenId: number;
-  creator: string;
-  supply: number;
-  cid: string;
-  blockNumber: number;
-  blockTimestamp: number;
-};
-
-type NFT = {
-  id: string;
-  image: string;
-  name: string;
-  description: string;
-  creator: string;
-  quantity: number;
-  cid: string;
-};
+import { NFT, NftMinted } from "../types";
+import { NftContainer } from "./NftContainer";
 
 export const LatestNFTList: React.FC = () => {
   const [nfts, setNfts] = useState<NFT[]>([]);
@@ -36,7 +17,7 @@ export const LatestNFTList: React.FC = () => {
         body: JSON.stringify({
           query: `
             query {
-              nftMinteds(first: 10, orderBy: blockTimestamp) {
+              nftMinteds(first: 10, orderBy: blockTimestamp, orderDirection: desc) {
                 id
                 tokenId
                 creator
@@ -70,25 +51,7 @@ export const LatestNFTList: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">Latest NFTs Created</h2>
       <ul className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {nfts.map((nft) => (
-          <li
-            key={nft.id}
-            className="flex flex-col gap-6 p-4 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
-          >
-            <Image
-              src={nft.image}
-              alt={nft.name}
-              className="w-16 h-16 rounded-lg"
-              width={640}
-              height={256}
-              unoptimized
-            />
-            <div>
-              <h3 className="text-xl font-semibold">{nft.name}</h3>
-              <p className="text-sm text-gray-400">{nft.description}</p>
-              <p className="text-sm text-gray-400">Quantity: {nft.quantity}</p>
-              <p className="text-sm text-gray-400">CID: {nft.cid}</p>
-            </div>
-          </li>
+          <NftContainer key={nft.id} nft={nft} />
         ))}
       </ul>
     </div>
