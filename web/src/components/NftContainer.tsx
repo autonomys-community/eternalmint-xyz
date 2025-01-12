@@ -18,14 +18,19 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
     }
   };
 
+  const metadataCid = useMemo(
+    () => (nft && nft.cid ? nft.cid.split("/").pop() : null),
+    [nft]
+  );
+
   const imageCid = useMemo(
     () => (metadata && metadata.image ? metadata.image.split("/").pop() : null),
     [metadata]
   );
 
   useEffect(() => {
-    handleLoadMetadata(nft.cid);
-  }, [nft.cid]);
+    if (metadataCid) handleLoadMetadata(metadataCid);
+  }, [metadataCid]);
 
   return (
     <li
