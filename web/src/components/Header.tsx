@@ -1,15 +1,18 @@
 "use client";
 
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useAccountModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
+import { useAccount } from "wagmi";
 import { Routes } from "../constants/routes";
 
 export const Header: React.FC = () => {
   const pathname = usePathname();
   const { openConnectModal } = useConnectModal();
+  const { openAccountModal } = useAccountModal();
+  const { address } = useAccount();
 
   const font = "font-manrope font-extrabold";
   const hover =
@@ -48,13 +51,23 @@ export const Header: React.FC = () => {
         >
           Browse NFTs
         </Link>
-        <button
-          type="button"
-          onClick={openConnectModal}
-          className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
-        >
-          Connect Wallet
-        </button>
+        {address ? (
+          <button
+            type="button"
+            onClick={openAccountModal}
+            className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
+          >
+            {`${address.slice(0, 6)}...${address.slice(-4)}`}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={openConnectModal}
+            className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
+          >
+            Connect Wallet
+          </button>
+        )}
       </nav>
     </header>
   );
