@@ -2,27 +2,49 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Metadata, NFT } from "../types";
 
 export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [metadata, setMetadata] = useState<Metadata | null>(null);
 
-  const handleLoadMetadata = async (cid: string) => {
+  const handleLoadMetadata = useCallback(async (cid: string) => {
     try {
       const res = await fetch(`/api/cid/taurus/${cid}`);
       const metadata = await res.json();
       console.log("metadata", metadata);
-      setMetadata({
+      return {
         ...metadata,
         image: metadata.image
           .replace("http://localhost:[0-9]+", process.env.NEXT_PUBLIC_HOST)
           .replace("//api", "/api"),
-      });
+      };
     } catch (error) {
       console.error("Error loading metadata", error);
+      throw error;
     }
-  };
+  }, []);
+
+  const handleLoadMetadataWithFallback = useCallback(
+    async (cid: string) => {
+      try {
+        const metadata = await handleLoadMetadata(cid);
+        console.log("metadata", metadata);
+        setMetadata(metadata);
+      } catch (error) {
+        console.error("Error loading metadata", error);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+          const metadata = await handleLoadMetadata(cid);
+          console.log("metadata", metadata);
+          setMetadata(metadata);
+        } catch (error) {
+          console.error("Error loading metadata a second time", error);
+        }
+      }
+    },
+    [handleLoadMetadata]
+  );
 
   const metadataCid = useMemo(
     () => (nft && nft.cid ? nft.cid.split("/").pop() : null),
@@ -35,8 +57,8 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
   );
 
   useEffect(() => {
-    if (metadataCid) handleLoadMetadata(metadataCid);
-  }, [metadataCid]);
+    if (metadataCid) handleLoadMetadataWithFallback(metadataCid);
+  }, [metadataCid, handleLoadMetadataWithFallback]);
 
   return (
     <li
