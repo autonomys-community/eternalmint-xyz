@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Eternal Mint",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
-    images: ["/path/to/your/image.jpg"],
+    images: ["/share.png"],
     url: "https://yourwebsite.com",
   },
   twitter: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Eternal Mint",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
-    images: ["/path/to/your/image.jpg"],
+    images: ["/share.png"],
   },
 };
 
