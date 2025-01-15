@@ -17,7 +17,7 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
         ...metadata,
         image: metadata.image
           .replace("http://localhost:[0-9]+", process.env.NEXT_PUBLIC_HOST)
-          .replace("//", "/"),
+          .replace("//api", "/api"),
       });
     } catch (error) {
       console.error("Error loading metadata", error);
