@@ -12,7 +12,13 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
     try {
       const res = await fetch(`/api/cid/taurus/${cid}`);
       const data = await res.json();
-      setMetadata(data);
+      setMetadata({
+        ...data,
+        image: data.image.replace(
+          "http://localhost:[0-9]+",
+          process.env.NEXT_PUBLIC_HOST
+        ),
+      });
     } catch (error) {
       console.error("Error loading metadata", error);
     }
