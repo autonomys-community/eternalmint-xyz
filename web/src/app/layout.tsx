@@ -26,19 +26,49 @@ export const metadata: Metadata = {
   title: "Eternal Mint",
   description:
     "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
+  keywords: [
+    "NFT",
+    "Web3",
+    "Blockchain",
+    "Eternal Mint",
+    "Decentralized",
+    "Crypto",
+    "Token",
+    "Permanent",
+    "Autonomys",
+  ],
   openGraph: {
     title: "Eternal Mint",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
-    images: ["/path/to/your/image.jpg"],
-    url: "https://yourwebsite.com",
+    images: ["/share.png"],
+    url: "https://eternalmint.xyz",
+    siteName: "Eternal Mint",
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Eternal Mint",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
-    images: ["/path/to/your/image.jpg"],
+    images: ["/share.png"],
+    site: "@eternalmint_xyz",
+    creator: "@marcaureleb",
+  },
+  alternates: {
+    canonical: "https://eternalmint.xyz",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1, // no limit
+      "max-image-preview": "large",
+      "max-snippet": -1, // no limit
+    },
   },
 };
 
