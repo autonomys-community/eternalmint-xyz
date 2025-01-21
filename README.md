@@ -17,9 +17,7 @@
   />
 </a>
 
-<a href="https://eternalmint.xyz">
-  <h1>EternalMint.xyz</h1>
-</a>
+<a href="https://eternalmint.xyz">EternalMint.xyz</a>
 
 **Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.**
 
