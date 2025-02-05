@@ -107,9 +107,9 @@ export async function GET(req: NextRequest) {
 const networks = {
   taurus: "https://demo.auto-drive.autonomys.xyz/api",
   mainnet: "https://mainnet.auto-drive.autonomys.xyz/api",
-} satisfies Partial<Record<"taurus" | "mainnet", string>>;
+} satisfies Partial<Record<AutoDriveNetwork, string>>;
 
-const getNetworkUrl = (networkId: "taurus" | "mainnet") => {
+const getNetworkUrl = (networkId: AutoDriveNetwork) => {
   if (!networks[networkId]) {
     throw new Error(`Network ${networkId} not found`);
   }
