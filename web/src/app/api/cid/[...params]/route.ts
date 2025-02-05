@@ -1,7 +1,7 @@
 import { createAutoDriveApi, downloadFile } from "@autonomys/auto-drive";
 import { NextRequest, NextResponse } from "next/server";
 
-type AutoDriveNetwork = "taurus" | "mainnet" | null | undefined;
+type AutoDriveNetwork = "taurus" | "mainnet";
 const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   const bytes = [...new Uint8Array(arrayBuffer.slice(0, 4))]
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -36,15 +36,15 @@ const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   return "unknown";
 };
 
-const apiKey = process.env.AUTO_DRIVE_API_KEY;
-if (apiKey == undefined) {
-  throw new Error("AUTO_DRIVE_API_KEY is not set");
-}
-
 async function fetchFromAutoDrive(cid: string, network: AutoDriveNetwork) {
+  const apiKey = process.env.AUTO_DRIVE_API_KEY;
+  if (apiKey == undefined) {
+    throw new Error("AUTO_DRIVE_API_KEY is not set");
+  }
+
   const api = createAutoDriveApi({
     apiKey,
-    network: network,
+    url: getNetworkUrl(network),
   });
   try {
     const stream = await downloadFile(api, cid);
@@ -69,6 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     const fileBuffer = await fetchFromAutoDrive(cid, network);
+    //@ts-expect-error - fileBuffer is a Buffer
     const fileType = await detectFileType(fileBuffer);
 
     // Try to parse as JSON first
@@ -102,3 +103,16 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+const networks = {
+  taurus: "https://demo.auto-drive.autonomys.xyz/api",
+  mainnet: "https://mainnet.auto-drive.autonomys.xyz/api",
+} satisfies Partial<Record<"taurus" | "mainnet", string>>;
+
+const getNetworkUrl = (networkId: "taurus" | "mainnet") => {
+  if (!networks[networkId]) {
+    throw new Error(`Network ${networkId} not found`);
+  }
+
+  return networks[networkId];
+};
