@@ -1,3 +1,4 @@
+import { networkIdToString } from "@/app/api/utils/network";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
 import { NetworkId } from '@autonomys/auto-utils';
 import { NextRequest, NextResponse } from "next/server";
@@ -101,17 +102,5 @@ export async function GET(req: NextRequest) {
       { error: "Failed to process request" },
       { status: 500 }
     );
-  }
-}
-
-// Converts auto-utils NetworkId to a valid network string for createAutoDriveApi
-function networkIdToString(networkId: NetworkId): "taurus" | "mainnet" {
-  switch (networkId) {
-    case NetworkId.TAURUS:
-      return "taurus";
-    case NetworkId.MAINNET:
-      return "mainnet";
-    default:
-      throw new Error(`Unsupported NetworkId: ${networkId}`);
   }
 }
