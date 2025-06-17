@@ -1,7 +1,7 @@
-import { createAutoDriveApi, downloadFile } from "@autonomys/auto-drive";
+import { createAutoDriveApi } from "@autonomys/auto-drive";
+import { NetworkId } from '@autonomys/auto-utils';
 import { NextRequest, NextResponse } from "next/server";
 
-type AutoDriveNetwork = "taurus" | "mainnet";
 const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   const bytes = [...new Uint8Array(arrayBuffer.slice(0, 4))]
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -36,7 +36,7 @@ const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   return "unknown";
 };
 
-async function fetchFromAutoDrive(cid: string, network: AutoDriveNetwork) {
+async function fetchFromAutoDrive(cid: string, networkId: NetworkId) {
   const apiKey = process.env.AUTO_DRIVE_API_KEY;
   if (apiKey == undefined) {
     throw new Error("AUTO_DRIVE_API_KEY is not set");
@@ -44,10 +44,10 @@ async function fetchFromAutoDrive(cid: string, network: AutoDriveNetwork) {
 
   const api = createAutoDriveApi({
     apiKey,
-    url: getNetworkUrl(network),
+    network: networkIdToString(networkId)
   });
   try {
-    const stream = await downloadFile(api, cid);
+    const stream = await api.downloadFile(cid);
     let file = Buffer.alloc(0);
     for await (const chunk of stream) {
       file = Buffer.concat([file, chunk]);
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   try {
     const pathname = req.nextUrl.pathname;
     const cid = pathname.split("/").slice(3)[1]; // Get CID from URL path
-    const network = pathname.split("/").slice(3)[0] as AutoDriveNetwork; // Get network from URL path
+    const network = pathname.split("/").slice(3)[0] as NetworkId; // Get network from URL path
     if (!cid) {
       return NextResponse.json({ error: "CID is required" }, { status: 400 });
     }
@@ -104,15 +104,14 @@ export async function GET(req: NextRequest) {
   }
 }
 
-const networks = {
-  taurus: "https://demo.auto-drive.autonomys.xyz/api",
-  mainnet: "https://mainnet.auto-drive.autonomys.xyz/api",
-} satisfies Partial<Record<AutoDriveNetwork, string>>;
-
-const getNetworkUrl = (networkId: AutoDriveNetwork) => {
-  if (!networks[networkId]) {
-    throw new Error(`Network ${networkId} not found`);
+// Converts auto-utils NetworkId to a valid network string for createAutoDriveApi
+function networkIdToString(networkId: NetworkId): "taurus" | "mainnet" {
+  switch (networkId) {
+    case NetworkId.TAURUS:
+      return "taurus";
+    case NetworkId.MAINNET:
+      return "mainnet";
+    default:
+      throw new Error(`Unsupported NetworkId: ${networkId}`);
   }
-
-  return networks[networkId];
-};
+}
