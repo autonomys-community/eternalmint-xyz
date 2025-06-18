@@ -1,8 +1,5 @@
 import { networkIdToString } from "@/app/api/utils/network";
-import {
-  createAutoDriveApi,
-  UploadFileStatus
-} from "@autonomys/auto-drive";
+import { createAutoDriveApi } from "@autonomys/auto-drive";
 import { NetworkId } from '@autonomys/auto-utils';
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
