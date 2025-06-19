@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import { useAccountModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ export const Header: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { address } = useAccount();
+  const { hasMinterRole, isConnected } = useHasMinterRole();
 
   const font = "font-manrope font-extrabold";
   const hover =
@@ -39,12 +41,15 @@ export const Header: React.FC = () => {
         <Link href={Routes.HOME} className={activeOrHoverClass(Routes.HOME)}>
           Home
         </Link>
-        <Link
-          href={Routes.CREATE}
-          className={activeOrHoverClass(Routes.CREATE)}
-        >
-          Create Eternal NFTs
-        </Link>
+        {/* Only show Create link if user has MINTER_ROLE */}
+        {isConnected && hasMinterRole && (
+          <Link
+            href={Routes.CREATE}
+            className={activeOrHoverClass(Routes.CREATE)}
+          >
+            Create Eternal NFTs
+          </Link>
+        )}
         <Link
           href={Routes.BROWSE}
           className={activeOrHoverClass(Routes.BROWSE)}

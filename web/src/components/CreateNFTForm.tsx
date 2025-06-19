@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
@@ -28,6 +29,7 @@ type NftDetails = {
 export const CreateNFTForm: React.FC = () => {
   const { address } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const { hasMinterRole, isLoading } = useHasMinterRole();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     supply: 1,
@@ -92,6 +94,12 @@ export const CreateNFTForm: React.FC = () => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      
+      // Prevent submission if user doesn't have minter role
+      if (!hasMinterRole) {
+        return;
+      }
+      
       sendGAEvent("event", "mint_started", { value: formData.name });
       setIsSubmitting(true);
 
@@ -143,11 +151,11 @@ export const CreateNFTForm: React.FC = () => {
                 type="text"
                 id="name"
                 name="name"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !hasMinterRole}
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
+                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -159,11 +167,11 @@ export const CreateNFTForm: React.FC = () => {
                 type="number"
                 id="supply"
                 name="supply"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !hasMinterRole}
                 value={formData.supply}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
+                className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -176,10 +184,10 @@ export const CreateNFTForm: React.FC = () => {
               type="url"
               id="externalLink"
               name="externalLink"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !hasMinterRole}
               value={formData.externalLink}
               onChange={handleChange}
-              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
+              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -190,19 +198,20 @@ export const CreateNFTForm: React.FC = () => {
             <textarea
               id="description"
               name="description"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !hasMinterRole}
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white"
+              className="w-full p-3 border border-white/15 rounded-lg bg-white/10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             <div
               {...getRootProps()}
-              className="flex-1 cursor-pointer p-3 rounded-lg text-white bg-white/10 border-2 border-dashed border-transparent overflow-hidden
+              className={`flex-1 p-3 rounded-lg text-white bg-white/10 border-2 border-dashed border-transparent overflow-hidden
                 [border-image-slice:1] [border-image-width:1] mt-2
-                [border-image-source:linear-gradient(to_right,#1E58FC,#D914E4,#F10419)]"
+                [border-image-source:linear-gradient(to_right,#1E58FC,#D914E4,#F10419)]
+                ${hasMinterRole ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
             >
-              <input {...getInputProps()} disabled={isSubmitting} />
+              <input {...getInputProps()} disabled={isSubmitting || !hasMinterRole} />
               {formData.media ? (
                 <div>
                   <Image
@@ -244,7 +253,37 @@ export const CreateNFTForm: React.FC = () => {
             </div>
           </div>
 
-          {address ? (
+          {!address ? (
+            <button
+              type="button"
+              onClick={openConnectModal}
+              className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
+            >
+              Connect Wallet
+            </button>
+          ) : isLoading ? (
+            <button
+              type="button"
+              disabled
+              className="px-3 py-2 font-manrope font-extrabold bg-gray-600 text-gray-300 rounded-sm cursor-not-allowed"
+            >
+              Checking permissions...
+            </button>
+          ) : !hasMinterRole ? (
+            <div className="relative group">
+              <button
+                type="button"
+                disabled
+                className="px-3 py-2 font-manrope font-extrabold bg-gray-600 text-gray-300 rounded-sm cursor-not-allowed w-full"
+              >
+                Create (MINTER Role Required)
+              </button>
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                You need MINTER_ROLE permissions to create NFTs
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+              </div>
+            </div>
+          ) : (
             <button
               type="submit"
               disabled={isSubmitting}
@@ -253,14 +292,6 @@ export const CreateNFTForm: React.FC = () => {
               }`}
             >
               {isSubmitting ? "Minting NFT in progress..." : "Create"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={openConnectModal}
-              className="px-3 py-2 font-manrope font-extrabold bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-sm hover:bg-green-700 transition"
-            >
-              Connect Wallet
             </button>
           )}
         </div>
