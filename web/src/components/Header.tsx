@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
   );
 
   return (
-    <header className="flex justify-between items-center mb-8">
+    <header className="flex justify-between items-center mb-8 px-2 sm:px-4">
       <div className="flex items-center">
         <Image
           src="/images/EternalMint-LogoWithText.png"
@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
           height={60}
         />
       </div>
-      <nav className="flex gap-6 items-center">
+      <nav className="flex gap-6 items-center ml-8">
         <Link href={Routes.HOME} className={activeOrHoverClass(Routes.HOME)}>
           Home
         </Link>
