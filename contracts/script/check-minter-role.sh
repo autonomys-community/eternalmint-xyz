@@ -5,9 +5,6 @@ if [ -f .env ]; then
     source .env
 fi
 
-# Set default values
-CONTRACT_ADDRESS=${CONTRACT_ADDRESS:-"0x346201D2A8eB53807991AF04f7842334674B8793"}
-
 # Check if CHECK_ADDRESS is provided
 if [ -z "$CHECK_ADDRESS" ]; then
     echo "Error: CHECK_ADDRESS environment variable is required"

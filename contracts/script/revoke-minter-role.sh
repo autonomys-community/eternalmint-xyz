@@ -5,10 +5,6 @@ if [ -f .env ]; then
     source .env
 fi
 
-# Set default values
-CONTRACT_ADDRESS=${CONTRACT_ADDRESS:-"0x346201D2A8eB53807991AF04f7842334674B8793"}
-CHAIN_ID=${CHAIN_ID:-490000}
-
 # Check if REVOKE_FROM_ADDRESS is provided
 if [ -z "$REVOKE_FROM_ADDRESS" ]; then
     echo "Error: REVOKE_FROM_ADDRESS environment variable is required"
