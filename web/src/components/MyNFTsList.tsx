@@ -1,7 +1,7 @@
 "use client";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { NFT } from "../types";
 import { NftContainer } from "./NftContainer";
@@ -24,123 +24,133 @@ export const MyNFTsList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchOwnedNFTs = async () => {
-      if (!address || !isConnected) return;
+  const fetchOwnedNFTs = useCallback(async () => {
+    if (!address || !isConnected) return;
 
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        // First, get user's owned tokens from the contract
-        const tokensResponse = await fetch("/api/utils/contract-call", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            method: "getUserTokens",
-            args: [address]
-          })
-        });
+    try {
+      // First, get user's owned tokens from the contract
+      const tokensResponse = await fetch("/api/utils/contract-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: "getUserTokens",
+          args: [address]
+        })
+      });
 
-        if (!tokensResponse.ok) {
-          throw new Error("Failed to fetch user tokens");
-        }
-
-        const tokensData = await tokensResponse.json();
-        const [tokenIds, balances] = tokensData.result;
-
-        if (!tokenIds || tokenIds.length === 0) {
-          setOwnedNFTs([]);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch details for each owned token
-        const nfts: OwnedNFT[] = [];
-
-        for (let i = 0; i < tokenIds.length; i++) {
-          try {
-            const tokenId = tokenIds[i].toString();
-            const balance = parseInt(balances[i].toString());
-
-            // Skip tokens with zero balance
-            if (balance === 0) continue;
-
-            // Get CID for this token
-            const cidResponse = await fetch("/api/utils/contract-call", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                method: "getCID",
-                args: [tokenId]
-              })
-            });
-
-            if (!cidResponse.ok) continue;
-
-            const cidData = await cidResponse.json();
-            const cid = cidData.result;
-
-            // Get supply for this token
-            const supplyResponse = await fetch("/api/utils/contract-call", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                method: "getSupply",
-                args: [tokenId]
-              })
-            });
-
-            if (!supplyResponse.ok) continue;
-
-            const supplyData = await supplyResponse.json();
-            const supply = parseInt(supplyData.result);
-
-            // Fetch metadata to get image, name, description
-            let imageUrl = "";
-            let name = "";
-            let description = "";
-
-            try {
-              const metadataResponse = await fetch(`/api/cid/taurus/${cid}`);
-              if (metadataResponse.ok) {
-                const metadata = await metadataResponse.json();
-                imageUrl = metadata.image || "";
-                name = metadata.name || `NFT ${tokenId}`;
-                description = metadata.description || "";
-              }
-            } catch (error) {
-              console.error(`Error fetching metadata for token ${tokenId}:`, error);
-              name = `NFT ${tokenId}`;
-            }
-
-            nfts.push({
-              id: `${address}-${tokenId}`,
-              tokenId,
-              balance,
-              cid,
-              image: imageUrl,
-              name,
-              description,
-              quantity: balance
-            });
-
-          } catch (error) {
-            console.error(`Error processing token ${tokenIds[i]}:`, error);
-          }
-        }
-
-        setOwnedNFTs(nfts);
-      } catch (error) {
-        console.error("Error fetching owned NFTs:", error);
-        setError("Failed to load your NFTs. Please try again.");
-      } finally {
-        setLoading(false);
+      if (!tokensResponse.ok) {
+        throw new Error("Failed to fetch user tokens");
       }
-    };
 
-    fetchOwnedNFTs();
+      const tokensData = await tokensResponse.json();
+      const [tokenIds, balances] = tokensData.result;
+
+      if (!tokenIds || tokenIds.length === 0) {
+        setOwnedNFTs([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch details for each owned token
+      const nfts: OwnedNFT[] = [];
+
+      for (let i = 0; i < tokenIds.length; i++) {
+        try {
+          const tokenId = tokenIds[i].toString();
+          const balance = parseInt(balances[i].toString());
+
+          // Include all tokens, even those with zero balance
+          // Get CID for this token
+          const cidResponse = await fetch("/api/utils/contract-call", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              method: "getCID",
+              args: [tokenId]
+            })
+          });
+
+          if (!cidResponse.ok) continue;
+
+          const cidData = await cidResponse.json();
+          const cid = cidData.result;
+
+          // Get supply for this token
+          const supplyResponse = await fetch("/api/utils/contract-call", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              method: "getSupply",
+              args: [tokenId]
+            })
+          });
+
+          if (!supplyResponse.ok) continue;
+
+          const supplyData = await supplyResponse.json();
+          const supply = parseInt(supplyData.result);
+
+          // Fetch metadata to get image, name, description
+          let imageUrl = "";
+          let name = "";
+          let description = "";
+
+          try {
+            const metadataResponse = await fetch(`/api/cid/taurus/${cid}`);
+            if (metadataResponse.ok) {
+              const metadata = await metadataResponse.json();
+              imageUrl = metadata.image || "";
+              name = metadata.name || `NFT ${tokenId}`;
+              description = metadata.description || "";
+            }
+          } catch (error) {
+            console.error(`Error fetching metadata for token ${tokenId}:`, error);
+            name = `NFT ${tokenId}`;
+          }
+
+          nfts.push({
+            id: `${address}-${tokenId}`,
+            tokenId,
+            balance,
+            cid,
+            image: imageUrl,
+            name,
+            description,
+            quantity: balance
+          });
+
+        } catch (error) {
+          console.error(`Error processing token ${tokenIds[i]}:`, error);
+        }
+      }
+
+      setOwnedNFTs(nfts);
+    } catch (error) {
+      console.error("Error fetching owned NFTs:", error);
+      setError("Failed to load your NFTs. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [address, isConnected]);
+
+  // Function to update specific NFT quantity
+  const updateNFTQuantity = useCallback((tokenId: string, newQuantity: number) => {
+    setOwnedNFTs(prev => {
+      // Always update the NFT quantity, even if it's 0
+      return prev.map(nft => 
+        nft.tokenId === tokenId 
+          ? { ...nft, quantity: newQuantity, balance: newQuantity }
+          : nft
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchOwnedNFTs();
+  }, [fetchOwnedNFTs]);
 
   if (!isConnected) {
     return (
@@ -212,7 +222,7 @@ export const MyNFTsList: React.FC = () => {
           Your Eternal NFTs ({ownedNFTs.length})
         </h2>
         <p className="text-gray-300">
-          You own {ownedNFTs.reduce((total, nft) => total + nft.balance, 0)} total NFTs
+          You own {ownedNFTs.filter(nft => nft.balance > 0).reduce((total, nft) => total + nft.balance, 0)} total NFTs
         </p>
       </div>
 
@@ -226,8 +236,12 @@ export const MyNFTsList: React.FC = () => {
               name: nft.name,
               description: nft.description,
               quantity: nft.quantity,
-              cid: nft.cid
+              cid: nft.cid,
+              tokenId: nft.tokenId
             } as NFT}
+            showTransferButton={true}
+            onTransferSuccess={fetchOwnedNFTs}
+            onQuantityUpdate={updateNFTQuantity}
           />
         ))}
       </ul>
