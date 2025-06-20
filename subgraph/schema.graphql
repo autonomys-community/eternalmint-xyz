@@ -9,6 +9,30 @@ type NftMinted @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type BatchDistribution @entity(immutable: true) {
+  id: Bytes!
+  distributor: Bytes! # address
+  tokenIds: [BigInt!]! # uint256[]
+  recipients: [Bytes!]! # address[]
+  amounts: [BigInt!]! # uint256[]
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SingleDistribution @entity(immutable: true) {
+  id: Bytes!
+  distributor: Bytes! # address
+  tokenId: BigInt! # uint256
+  recipient: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type RoleGranted @entity(immutable: true) {
   id: Bytes!
   role: Bytes! # bytes32

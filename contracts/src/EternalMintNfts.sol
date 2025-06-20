@@ -2,8 +2,9 @@
 pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), AccessControl {
+contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), AccessControl, ReentrancyGuard {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Struct to store token details
@@ -13,13 +14,70 @@ contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), Acc
         string cid;
     }
 
+    // Security controls
+    uint256 public constant MAX_BATCH_SIZE = 100;
+
     // Mapping from token ID to metadata
     mapping(uint256 => Token) public tokens;
 
     // Array of all token IDs
     uint256[] public tokenIds;
 
+    // Events
     event NftMinted(address indexed creator, uint256 indexed tokenId, uint256 supply, string cid);
+    event BatchDistribution(
+        address indexed distributor,
+        uint256[] tokenIds,
+        address[] recipients,
+        uint256[] amounts,
+        uint256 timestamp
+    );
+    event SingleDistribution(
+        address indexed distributor,
+        uint256 indexed tokenId,
+        address indexed recipient,
+        uint256 amount,
+        uint256 timestamp
+    );
+
+    // Modifiers
+    modifier validRecipient(address recipient) {
+        require(recipient != address(0), "Cannot transfer to zero address");
+        require(recipient != msg.sender, "Cannot transfer to self");
+        _;
+    }
+
+    modifier validBatchSize(uint256 size) {
+        require(size > 0, "Batch cannot be empty");
+        require(size <= MAX_BATCH_SIZE, "Batch size exceeds maximum limit");
+        _;
+    }
+
+    // Allow contract admin OR NFT creator to distribute
+    modifier canDistribute(uint256[] memory _tokenIds) {
+        bool isAdmin = hasRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        bool isCreatorOfAll = true;
+        
+        // Check if sender is creator of all tokens being distributed
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            if (tokens[_tokenIds[i]].creator != msg.sender) {
+                isCreatorOfAll = false;
+                break;
+            }
+        }
+        
+        require(isAdmin || isCreatorOfAll, "Not authorized: must be contract admin or creator of all NFTs");
+        _;
+    }
+
+    // For single token distributions
+    modifier canDistributeSingle(uint256 tokenId) {
+        bool isAdmin = hasRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        bool isCreator = tokens[tokenId].creator == msg.sender;
+        
+        require(isAdmin || isCreator, "Not authorized: must be contract admin or NFT creator");
+        _;
+    }
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -84,6 +142,191 @@ contract EternalMintNfts is ERC1155("https://eternalmint.xyz/api/cid/{id}"), Acc
         _mint(creator, tokenId, supply, "");
         
         emit NftMinted(creator, tokenId, supply, cid);
+    }
+
+    /**
+     * @dev Distributes different NFTs to multiple recipients in a single transaction.
+     * 
+     * This is the most gas-efficient way to distribute multiple different NFTs.
+     * Each recipient gets a specific NFT with a specific amount.
+     *
+     * Requirements:
+     * - The caller must be the contract admin OR the creator of ALL NFTs being distributed.
+     * - All arrays must have the same length.
+     * - Caller must own sufficient balance of each NFT.
+     *
+     * @param recipients Array of recipient addresses.
+     * @param _tokenIds Array of token IDs to distribute.
+     * @param amounts Array of amounts for each token.
+     */
+    function batchTransfer(
+        address[] memory recipients,
+        uint256[] memory _tokenIds,
+        uint256[] memory amounts
+    ) 
+        public 
+        nonReentrant 
+        validBatchSize(recipients.length)
+        canDistribute(_tokenIds)
+    {
+        // Input validation
+        require(recipients.length == _tokenIds.length, "Recipients and tokenIds length mismatch");
+        require(_tokenIds.length == amounts.length, "TokenIds and amounts length mismatch");
+
+        // Pre-flight checks - validate all transfers before executing any
+        for (uint256 i = 0; i < recipients.length; i++) {
+            require(recipients[i] != address(0), "Invalid recipient address");
+            require(recipients[i] != msg.sender, "Cannot transfer to self");
+            require(amounts[i] > 0, "Amount must be greater than zero");
+            require(balanceOf(msg.sender, _tokenIds[i]) >= amounts[i], "Insufficient balance for token");
+            require(tokens[_tokenIds[i]].supply > 0, "Token does not exist");
+        }
+
+        // Execute all transfers
+        for (uint256 i = 0; i < recipients.length; i++) {
+            _safeTransferFrom(msg.sender, recipients[i], _tokenIds[i], amounts[i], "");
+        }
+
+        emit BatchDistribution(msg.sender, _tokenIds, recipients, amounts, block.timestamp);
+    }
+
+    /**
+     * @dev Distributes the same NFT to multiple recipients.
+     * 
+     * More gas-efficient when distributing the same NFT to many people.
+     *
+     * Requirements:
+     * - The caller must be the contract admin OR the creator of the NFT.
+     * - Caller must own sufficient balance of the NFT.
+     *
+     * @param tokenId The token ID to distribute.
+     * @param recipients Array of recipient addresses.
+     * @param amounts Array of amounts for each recipient.
+     */
+    function distributeToMany(
+        uint256 tokenId,
+        address[] memory recipients,
+        uint256[] memory amounts
+    ) 
+        public 
+        nonReentrant 
+        validBatchSize(recipients.length)
+        canDistributeSingle(tokenId)
+    {
+        require(recipients.length == amounts.length, "Recipients and amounts length mismatch");
+        require(tokens[tokenId].supply > 0, "Token does not exist");
+
+        // Calculate total amount needed
+        uint256 totalAmount = 0;
+        for (uint256 i = 0; i < amounts.length; i++) {
+            require(amounts[i] > 0, "Amount must be greater than zero");
+            totalAmount += amounts[i];
+        }
+
+        // Check if sender has enough balance for total distribution
+        require(balanceOf(msg.sender, tokenId) >= totalAmount, "Insufficient total balance");
+
+        // Validate recipients and execute transfers
+        for (uint256 i = 0; i < recipients.length; i++) {
+            require(recipients[i] != address(0), "Invalid recipient address");
+            require(recipients[i] != msg.sender, "Cannot transfer to self");
+            _safeTransferFrom(msg.sender, recipients[i], tokenId, amounts[i], "");
+        }
+
+        // Create arrays for event emission
+        uint256[] memory eventTokenIds = new uint256[](recipients.length);
+        for (uint256 i = 0; i < recipients.length; i++) {
+            eventTokenIds[i] = tokenId;
+        }
+
+        emit BatchDistribution(msg.sender, eventTokenIds, recipients, amounts, block.timestamp);
+    }
+
+    /**
+     * @dev Distributes a single NFT to a single recipient.
+     * 
+     * Simpler and more gas-efficient for single transfers.
+     * Useful for testing or small distributions.
+     *
+     * Requirements:
+     * - The caller must be the contract admin OR the creator of the NFT.
+     * - Caller must own sufficient balance of the NFT.
+     *
+     * @param tokenId The token ID to distribute.
+     * @param recipient The recipient address.
+     * @param amount The amount to transfer.
+     */
+    function distributeSingle(
+        uint256 tokenId,
+        address recipient,
+        uint256 amount
+    ) 
+        public 
+        nonReentrant
+        validRecipient(recipient)
+        canDistributeSingle(tokenId)
+    {
+        require(amount > 0, "Amount must be greater than zero");
+        require(tokens[tokenId].supply > 0, "Token does not exist");
+        require(balanceOf(msg.sender, tokenId) >= amount, "Insufficient balance");
+
+        _safeTransferFrom(msg.sender, recipient, tokenId, amount, "");
+
+        emit SingleDistribution(msg.sender, tokenId, recipient, amount, block.timestamp);
+    }
+
+    /**
+     * @dev Gets all NFTs owned by a specific user.
+     * 
+     * Returns arrays of token IDs and their corresponding balances.
+     * Useful for building user dashboards.
+     *
+     * @param user The address to query.
+     * @return ownedTokenIds Array of token IDs owned by the user.
+     * @return ownedBalances Array of balances for each owned token.
+     */
+    function getUserTokens(address user) public view returns (uint256[] memory ownedTokenIds, uint256[] memory ownedBalances) {
+        uint256 totalTokens = tokenIds.length;
+        uint256[] memory tempTokenIds = new uint256[](totalTokens);
+        uint256[] memory tempBalances = new uint256[](totalTokens);
+        uint256 ownedCount = 0;
+
+        // Find all tokens owned by user
+        for (uint256 i = 0; i < totalTokens; i++) {
+            uint256 tokenId = tokenIds[i];
+            uint256 balance = balanceOf(user, tokenId);
+            if (balance > 0) {
+                tempTokenIds[ownedCount] = tokenId;
+                tempBalances[ownedCount] = balance;
+                ownedCount++;
+            }
+        }
+
+        // Create properly sized arrays
+        ownedTokenIds = new uint256[](ownedCount);
+        ownedBalances = new uint256[](ownedCount);
+        
+        for (uint256 i = 0; i < ownedCount; i++) {
+            ownedTokenIds[i] = tempTokenIds[i];
+            ownedBalances[i] = tempBalances[i];
+        }
+
+        return (ownedTokenIds, ownedBalances);
+    }
+
+    /**
+     * @dev Checks if a user can distribute a specific NFT.
+     * 
+     * Returns true if the user is either the contract admin or the creator of the NFT.
+     *
+     * @param user The address to check.
+     * @param tokenId The token ID to check.
+     * @return Whether the user can distribute this NFT.
+     */
+    function canUserDistribute(address user, uint256 tokenId) public view returns (bool) {
+        bool isAdmin = hasRole(DEFAULT_ADMIN_ROLE, user);
+        bool isCreator = tokens[tokenId].creator == user;
+        return isAdmin || isCreator;
     }
 
     /**
