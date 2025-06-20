@@ -139,7 +139,7 @@ export const CreateNFTForm: React.FC = () => {
         setIsSubmitting(false);
       }
     },
-    [formData]
+    [formData, hasMinterRole]
   );
 
   return (

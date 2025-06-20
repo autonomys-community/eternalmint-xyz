@@ -70,12 +70,11 @@ export function useDistribution() {
 
       setTxHash(hash);
       return hash;
-    } catch (err: any) {
-      const errorMessage = err?.message || "Distribution failed";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Distribution failed";
       setError(errorMessage);
-      throw err;
-    } finally {
       setIsLoading(false);
+      throw err;
     }
   };
 
@@ -113,12 +112,11 @@ export function useDistribution() {
 
       setTxHash(lastHash);
       return lastHash;
-    } catch (err: any) {
-      const errorMessage = err?.message || "Distribution failed";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Distribution failed";
       setError(errorMessage);
-      throw err;
-    } finally {
       setIsLoading(false);
+      throw err;
     }
   };
 
@@ -157,12 +155,11 @@ export function useDistribution() {
 
       setTxHash(lastHash);
       return lastHash;
-    } catch (err: any) {
-      const errorMessage = err?.message || "Distribution failed";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Distribution failed";
       setError(errorMessage);
-      throw err;
-    } finally {
       setIsLoading(false);
+      throw err;
     }
   };
 
