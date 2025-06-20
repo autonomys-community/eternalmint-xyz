@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { address } = useAccount();
-  const { hasMinterRole, isConnected } = useHasMinterRole();
+  const { hasMinterRole, canAccessDistribution, isConnected } = useHasMinterRole();
 
   const font = "font-manrope font-extrabold";
   const hover =
@@ -48,6 +48,15 @@ export const Header: React.FC = () => {
             className={activeOrHoverClass(Routes.CREATE)}
           >
             Create Eternal NFTs
+          </Link>
+        )}
+        {/* Show Distribute link if user can access distribution (admin OR creator) */}
+        {isConnected && canAccessDistribution && (
+          <Link
+            href="/distribute"
+            className={`${font} ${pathname === "/distribute" ? active : hover}`}
+          >
+            Distribute NFTs
           </Link>
         )}
         <Link
