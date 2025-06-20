@@ -65,6 +65,15 @@ export const Header: React.FC = () => {
         >
           Browse NFTs
         </Link>
+        {/* Show My NFTs link for connected users */}
+        {isConnected && (
+          <Link
+            href={Routes.MY_NFTS}
+            className={activeOrHoverClass(Routes.MY_NFTS)}
+          >
+            My NFTs
+          </Link>
+        )}
         {address ? (
           <button
             type="button"

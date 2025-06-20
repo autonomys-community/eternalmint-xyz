@@ -33,6 +33,16 @@ const CONTRACT_ABI = [
     outputs: [{ name: "", type: "bool" }],
     stateMutability: "view",
     type: "function"
+  },
+  {
+    inputs: [{ name: "user", type: "address" }],
+    name: "getUserTokens",
+    outputs: [
+      { name: "ownedTokenIds", type: "uint256[]" },
+      { name: "ownedBalances", type: "uint256[]" }
+    ],
+    stateMutability: "view",
+    type: "function"
   }
 ] as const;
 
@@ -59,6 +69,9 @@ export async function POST(request: NextRequest) {
     if (method === 'canUserDistribute') {
       // For canUserDistribute, first arg is address, second is tokenId (BigInt)
       processedArgs = [args[0] as `0x${string}`, BigInt(args[1])];
+    } else if (method === 'getUserTokens') {
+      // For getUserTokens, first arg is address
+      processedArgs = [args[0] as `0x${string}`];
     } else {
       // For other methods, convert all args to BigInt (for tokenId parameters)
       processedArgs = args.map((arg: string) => BigInt(arg));
@@ -72,10 +85,20 @@ export async function POST(request: NextRequest) {
       args: processedArgs
     });
 
-    // Convert result to string for consistent handling
-    const stringResult = String(result);
-
-    return NextResponse.json({ result: stringResult });
+    // Handle different result types
+    if (method === 'getUserTokens') {
+      // getUserTokens returns arrays with BigInt values, convert to strings
+      const [ownedTokenIds, ownedBalances] = result as [bigint[], bigint[]];
+      const stringTokenIds = ownedTokenIds.map(id => id.toString());
+      const stringBalances = ownedBalances.map(balance => balance.toString());
+      return NextResponse.json({ 
+        result: [stringTokenIds, stringBalances] 
+      });
+    } else {
+      // Convert other results to string for consistent handling
+      const stringResult = String(result);
+      return NextResponse.json({ result: stringResult });
+    }
   } catch (error) {
     console.error('Contract call error:', error);
     return NextResponse.json(
