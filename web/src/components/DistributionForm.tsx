@@ -62,15 +62,13 @@ export default function DistributionForm() {
     setStep('executing');
     
     try {
-      let hash: string;
-      
       if (distributionMode === 'single-nft') {
         // Use distributeToMany for same NFT to multiple recipients
         const amounts = distributionData.recipients.map(() => "1"); // 1 NFT per recipient
-        hash = await distributeToMany(selectedNFT.tokenId, distributionData.recipients, amounts);
+        await distributeToMany(selectedNFT.tokenId, distributionData.recipients, amounts);
       } else {
         // Use batchTransfer for custom distributions
-        hash = await batchTransfer(distributionData.recipients, distributionData.tokenIds, distributionData.amounts);
+        await batchTransfer(distributionData.recipients, distributionData.tokenIds, distributionData.amounts);
       }
       
       // The success step will be set by the useEffect when isSuccess becomes true
