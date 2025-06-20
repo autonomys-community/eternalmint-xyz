@@ -45,7 +45,7 @@ export const isValidImageSize = (sizeInBytes: number) => {
 };
 
 export const isValidImageType = (mimeType: string) => {
-  return SUPPORTED_IMAGE_TYPES.includes(mimeType as any);
+  return SUPPORTED_IMAGE_TYPES.includes(mimeType as (typeof SUPPORTED_IMAGE_TYPES)[number]);
 };
 
 // Centralized error messages

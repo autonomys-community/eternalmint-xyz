@@ -1,6 +1,7 @@
 "use client";
 
 import { currentChain } from "@/config/chains";
+import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
@@ -15,7 +16,6 @@ interface TransferModalProps {
     cid: string;
     image?: string;
   };
-  onTransferSuccess?: () => void;
   onQuantityUpdate?: (tokenId: string, newQuantity: number) => void;
 }
 
@@ -39,7 +39,6 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   isOpen,
   onClose,
   nft,
-  onTransferSuccess,
   onQuantityUpdate
 }) => {
   const { address } = useAccount();
@@ -107,11 +106,6 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   const handleRecipientChange = (value: string) => {
     setRecipient(value);
     setIsValidAddress(validateAddress(value));
-  };
-
-  const handleAmountChange = (value: string) => {
-    // Allow any numeric input during typing, validation happens elsewhere
-    setAmountInput(value);
   };
 
   const handleAmountBlur = () => {
@@ -192,9 +186,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             </label>
             <div className="bg-gray-800 p-3 rounded-lg">
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src={nft.image || ""}
                   alt={nft.name}
+                  width={80}
+                  height={100}
                   className="w-16 h-20 rounded-lg object-cover flex-shrink-0"
                 />
                 <div className="min-w-0 flex-1">
@@ -241,10 +237,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               min="1"
               max={currentQuantity}
               value={amountInput}
-              onChange={(e) => {
-                const value = e.target.value;
-                setAmountInput(value);
-              }}
+              onChange={(e) => setAmountInput(e.target.value)}
               onBlur={handleAmountBlur}
               className="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={isPending || isConfirming || currentQuantity === 0}

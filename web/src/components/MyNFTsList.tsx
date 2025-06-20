@@ -90,9 +90,6 @@ export const MyNFTsList: React.FC = () => {
 
           if (!supplyResponse.ok) continue;
 
-          const supplyData = await supplyResponse.json();
-          const supply = parseInt(supplyData.result);
-
           // Fetch metadata to get image, name, description
           let imageUrl = "";
           let name = "";
@@ -203,7 +200,7 @@ export const MyNFTsList: React.FC = () => {
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold mb-4">No NFTs Found</h2>
         <p className="text-gray-300 mb-6">
-          You don't own any Eternal NFTs yet
+          You don&apos;t own any Eternal NFTs yet
         </p>
         <a
           href="/create"
@@ -240,7 +237,6 @@ export const MyNFTsList: React.FC = () => {
               tokenId: nft.tokenId
             } as NFT}
             showTransferButton={true}
-            onTransferSuccess={fetchOwnedNFTs}
             onQuantityUpdate={updateNFTQuantity}
           />
         ))}

@@ -10,11 +10,10 @@ import { TransferModal } from "./TransferModal";
 interface NftContainerProps {
   nft: NFT;
   showTransferButton?: boolean;
-  onTransferSuccess?: () => void;
   onQuantityUpdate?: (tokenId: string, newQuantity: number) => void;
 }
 
-export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferButton = false, onTransferSuccess, onQuantityUpdate }) => {
+export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferButton = false, onQuantityUpdate }) => {
   const [metadata, setMetadata] = useState<Metadata | null>(null);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [modalNft, setModalNft] = useState(nft);
@@ -167,7 +166,6 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
             cid: modalNft.cid,
             image: metadata?.image || ""
           }}
-          onTransferSuccess={onTransferSuccess}
           onQuantityUpdate={handleQuantityUpdate}
         />
       )}

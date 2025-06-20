@@ -109,7 +109,7 @@ export default function DistributionPreview({
           <div className="text-yellow-100 text-sm space-y-1">
             <p>This distribution will be processed in {batchesNeeded} separate transactions due to the 100-recipient batch limit.</p>
             <p>Each batch will require a separate transaction and gas fee.</p>
-            <p>The process will be automatic, but please don't close this window until all batches are complete.</p>
+            <p>The process will be automatic, but please don&apos;t close this window until all batches are complete.</p>
           </div>
         </div>
       )}
@@ -178,7 +178,7 @@ export default function DistributionPreview({
           <p>• This action cannot be undone once started</p>
           <p>• Make sure all recipient addresses are correct</p>
           <p>• Ensure you have sufficient gas for all batches</p>
-          <p>• Don't close this window during distribution</p>
+          <p>• Don&apos;t close this window during distribution</p>
         </div>
       </div>
 

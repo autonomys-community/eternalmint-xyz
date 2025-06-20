@@ -46,9 +46,30 @@ const CONTRACT_ABI = [
   }
 ] as const;
 
+// 1. Define allowed contract methods
+export type ContractMethod =
+  | 'getCID'
+  | 'getSupply'
+  | 'getCreator'
+  | 'canUserDistribute'
+  | 'getUserTokens';
+
+const allowedMethods: ContractMethod[] = [
+  'getCID',
+  'getSupply',
+  'getCreator',
+  'canUserDistribute',
+  'getUserTokens',
+];
+
 export async function POST(request: NextRequest) {
   try {
     const { method, args } = await request.json();
+
+    // 2. Validate user input
+    if (!allowedMethods.includes(method)) {
+      return NextResponse.json({ error: 'Invalid method' }, { status: 400 });
+    }
 
     if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS) {
       return NextResponse.json(
@@ -81,7 +102,7 @@ export async function POST(request: NextRequest) {
     const result = await client.readContract({
       address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
       abi: CONTRACT_ABI,
-      functionName: method as any,
+      functionName: method as ContractMethod,
       args: processedArgs
     });
 

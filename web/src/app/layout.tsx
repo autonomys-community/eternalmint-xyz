@@ -23,6 +23,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://eternalmint.xyz'),
   title: "Eternal Mint",
   description:
     "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
