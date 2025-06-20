@@ -2,7 +2,7 @@
 
 import { BATCH_SIZES } from "@/config/constants";
 import { useState } from "react";
-import { useWriteContract } from "wagmi";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 const DISTRIBUTION_ABI = [
   {
@@ -46,6 +46,11 @@ export function useDistribution() {
   const [txHash, setTxHash] = useState<string | null>(null);
 
   const { writeContractAsync } = useWriteContract();
+  
+  // Wait for transaction confirmation
+  const { isLoading: isConfirming, isSuccess, isError: isTxError } = useWaitForTransactionReceipt({
+    hash: txHash as `0x${string}` | undefined,
+  });
 
   const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
     const chunks: T[][] = [];
@@ -163,6 +168,11 @@ export function useDistribution() {
     }
   };
 
+  // Set loading to false when transaction is confirmed or failed
+  if ((isSuccess || isTxError) && isLoading) {
+    setIsLoading(false);
+  }
+
   const resetState = () => {
     setIsLoading(false);
     setError(null);
@@ -173,9 +183,11 @@ export function useDistribution() {
     distributeSingle,
     distributeToMany,
     batchTransfer,
-    isLoading,
+    isLoading: isLoading || isConfirming,
     error,
     txHash,
-    resetState
+    resetState,
+    isSuccess,
+    isConfirming
   };
 } 
