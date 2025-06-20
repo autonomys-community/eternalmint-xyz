@@ -1,8 +1,6 @@
 import { networkIdToString } from "@/app/api/utils/network";
-import {
-  createAutoDriveApi,
-  UploadFileStatus
-} from "@autonomys/auto-drive";
+import { getImageSizeErrorMessage, getImageTypeErrorMessage, isValidImageSize, isValidImageType } from "@/config/constants";
+import { createAutoDriveApi } from "@autonomys/auto-drive";
 import { NetworkId } from '@autonomys/auto-utils';
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
@@ -36,9 +34,6 @@ export const POST = async (req: NextRequest) => {
       { status: 500 }
     );
 
-  const MAX_SIZE =
-    parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE || "5") * 1024 * 1024;
-
   try {
     const formData = await req.formData();
     console.log("Form Data:", formData);
@@ -65,16 +60,17 @@ export const POST = async (req: NextRequest) => {
         { message: "Media is required" },
         { status: 400 }
       );
-    if (!media.type.startsWith("image/"))
+    if (!isValidImageType(media.type))
       return NextResponse.json(
-        { message: "Only image files are allowed." },
+        { message: getImageTypeErrorMessage() },
         { status: 400 }
       );
-    if (media.size > MAX_SIZE)
+    if (!isValidImageSize(media.size)) {
       return NextResponse.json(
-        { message: "File size must be under 5 MB." },
+        { message: getImageSizeErrorMessage() },
         { status: 400 }
       );
+    }
 
     const arrayBuffer = await media.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);

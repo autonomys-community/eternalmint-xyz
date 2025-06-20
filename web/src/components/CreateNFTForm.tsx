@@ -1,5 +1,6 @@
 "use client";
 
+import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType, SUPPORTED_IMAGE_TYPES } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -53,13 +54,7 @@ export const CreateNFTForm: React.FC = () => {
     (acceptedFiles: File[], rejectedFiles: any[]) => {
       if (rejectedFiles.length > 0) {
         const error = rejectedFiles[0].errors[0];
-        if (error.code === "file-too-large") {
-          setFileError("File is larger than 5MB.");
-        } else if (error.code === "file-invalid-type") {
-          setFileError("Only image files are accepted.");
-        } else {
-          setFileError("File not accepted.");
-        }
+        setFileError(error.message || "File not accepted.");
         return;
       }
       setFileError(null);
@@ -71,16 +66,32 @@ export const CreateNFTForm: React.FC = () => {
     [formData]
   );
 
+  // Convert SUPPORTED_IMAGE_TYPES array to useDropzone accept format
+  const acceptedFileTypes = SUPPORTED_IMAGE_TYPES.reduce((acc, type) => {
+    acc[type] = [];
+    return acc;
+  }, {} as Record<string, string[]>);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/jpeg": [],
-      "image/png": [],
-      "image/gif": [],
-      "image/webp": [],
-    },
-    maxSize:
-      parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE || "5") * 1024 * 1024, // 5MB
+    accept: acceptedFileTypes,
+    maxSize: parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE_MB || "5") * 1024 * 1024,
+    validator: (file) => {
+      // Use our centralized validation functions
+      if (!isValidImageType(file.type)) {
+        return {
+          code: "file-invalid-type",
+          message: getImageTypeErrorMessage()
+        };
+      }
+      if (!isValidImageSize(file.size)) {
+        return {
+          code: "file-too-large",
+          message: getImageSizeErrorMessage()
+        };
+      }
+      return null; // File is valid
+    }
   });
 
   const handleChange = useCallback(
@@ -330,7 +341,7 @@ export const CreateNFTForm: React.FC = () => {
           <p className="mt-4 text-green-500 text-sm">
             Image CID: {nftDetails?.cids?.image}{" "}
             <Link
-              href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${nftDetails?.cids?.image}`}
+                              href={getStorageUrl(nftDetails?.cids?.image || "")}
               className="text-blue-500 hover:underline"
               target="_blank"
             >
@@ -340,7 +351,7 @@ export const CreateNFTForm: React.FC = () => {
           <p className="mt-4 text-green-500 text-sm">
             Metadata CID: {nftDetails?.cids?.metadata}{" "}
             <Link
-              href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${nftDetails?.cids?.metadata}`}
+                              href={getStorageUrl(nftDetails?.cids?.metadata || "")}
               className="text-blue-500 hover:underline"
               target="_blank"
             >

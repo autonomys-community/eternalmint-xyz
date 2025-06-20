@@ -1,5 +1,6 @@
 "use client";
 
+import { getStorageUrl } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -153,7 +154,17 @@ export default function NFTSelector({ onNFTSelected, distributionMode, onDistrib
           try {
             const metadataResponse = await fetch(`/api/cid/taurus/${cidData.result}`);
             const metadata = await metadataResponse.json();
-            imageUrl = metadata.image || '';
+            
+            // Validate the image URL from metadata
+            if (metadata.image) {
+              // Check if it's a valid image URL (starts with http/https)
+              if (metadata.image.startsWith('http')) {
+                imageUrl = metadata.image;
+              } else {
+                // If it's a relative path or CID, construct the full URL
+                imageUrl = getStorageUrl(metadata.image);
+              }
+            }
           } catch (error) {
             console.error(`Error fetching metadata for token ${tokenIds[i]}:`, error);
           }

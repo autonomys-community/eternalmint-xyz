@@ -1,5 +1,6 @@
 "use client";
 
+import { getStorageUrl } from "@/config/constants";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -80,7 +81,7 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
         <p className="text-sm text-gray-400 break-all">
           Metadata:{" "}
           <Link
-            href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${nft.cid}`}
+            href={getStorageUrl(nft.cid)}
             target="_blank"
           >
             {nft.cid.slice(0, 6)}...{nft.cid.slice(-6)}
@@ -90,7 +91,7 @@ export const NftContainer: React.FC<{ nft: NFT }> = ({ nft }) => {
           <p className="text-sm text-gray-400 break-all">
             Image:{" "}
             <Link
-              href={`${process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL}/${imageCid}`}
+              href={getStorageUrl(imageCid)}
               target="_blank"
             >
               {imageCid.slice(0, 6)}...{imageCid.slice(-6)}
