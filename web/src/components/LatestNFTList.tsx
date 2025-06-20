@@ -34,9 +34,9 @@ export const LatestNFTList: React.FC = () => {
       console.log("data", data);
       const transformedNfts = data.nftMinteds.map((item: NftMinted) => ({
         id: item.id,
-        image: `https://images.pexels.com/photos/${item.tokenId}/pexels-photo-${item.tokenId}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`,
-        name: `NFT ${item.tokenId}`,
-        description: `Created by ${item.creator}`,
+        image: "",
+        name: "",
+        description: "",
         quantity: item.supply,
         cid: item.cid,
       }));

@@ -6,15 +6,17 @@ dataSources:
     name: EternalMintNfts
     network: autonomys-taurus
     source:
-      address: "0x505c243ec05dF81bC33295fF7C135D4D98063Da5"
+      address: "0xC3b855011Fe6e594546582435416160Ee16cfE08"
       abi: EternalMintNfts
-      startBlock: 215542
+      startBlock: 1932116
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - NftMinted
+        - BatchDistribution
+        - SingleDistribution
         - RoleGranted
         - RoleRevoked
       abis:
@@ -23,6 +25,10 @@ dataSources:
       eventHandlers:
         - event: NftMinted(indexed address,indexed uint256,uint256,string)
           handler: handleNftMinted
+        - event: BatchDistribution(indexed address,uint256[],address[],uint256[],uint256)
+          handler: handleBatchDistribution
+        - event: SingleDistribution(indexed address,indexed uint256,indexed address,uint256,uint256)
+          handler: handleSingleDistribution
         - event: RoleGranted(indexed bytes32,indexed address,indexed address)
           handler: handleRoleGranted
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)

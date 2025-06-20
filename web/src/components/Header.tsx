@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import { useAccountModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ export const Header: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const { address } = useAccount();
+  const { hasMinterRole, canAccessDistribution, isConnected } = useHasMinterRole();
 
   const font = "font-manrope font-extrabold";
   const hover =
@@ -26,7 +28,7 @@ export const Header: React.FC = () => {
   );
 
   return (
-    <header className="flex justify-between items-center mb-8">
+    <header className="flex justify-between items-center mb-8 px-2 sm:px-4">
       <div className="flex items-center">
         <Image
           src="/images/EternalMint-LogoWithText.png"
@@ -35,22 +37,43 @@ export const Header: React.FC = () => {
           height={60}
         />
       </div>
-      <nav className="flex gap-6 items-center">
+      <nav className="flex gap-6 items-center ml-8">
         <Link href={Routes.HOME} className={activeOrHoverClass(Routes.HOME)}>
           Home
         </Link>
-        <Link
-          href={Routes.CREATE}
-          className={activeOrHoverClass(Routes.CREATE)}
-        >
-          Create Eternal NFTs
-        </Link>
+        {/* Only show Create link if user has MINTER_ROLE */}
+        {isConnected && hasMinterRole && (
+          <Link
+            href={Routes.CREATE}
+            className={activeOrHoverClass(Routes.CREATE)}
+          >
+            Create Eternal NFTs
+          </Link>
+        )}
+        {/* Show Distribute link if user can access distribution (admin OR creator) */}
+        {isConnected && canAccessDistribution && (
+          <Link
+            href="/distribute"
+            className={`${font} ${pathname === "/distribute" ? active : hover}`}
+          >
+            Distribute NFTs
+          </Link>
+        )}
         <Link
           href={Routes.BROWSE}
           className={activeOrHoverClass(Routes.BROWSE)}
         >
           Browse NFTs
         </Link>
+        {/* Show My NFTs link for connected users */}
+        {isConnected && (
+          <Link
+            href={Routes.MY_NFTS}
+            className={activeOrHoverClass(Routes.MY_NFTS)}
+          >
+            My NFTs
+          </Link>
+        )}
         {address ? (
           <button
             type="button"
