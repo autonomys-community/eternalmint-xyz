@@ -23,11 +23,20 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
       const res = await fetch(`/api/cid/taurus/${cid}`);
       const metadata = await res.json();
       console.log("metadata", metadata);
+      
+      // Use the common getStorageUrl method for image URLs
+      let imageUrl = metadata.image;
+      if (imageUrl && imageUrl.includes('/api/objects/')) {
+        // Extract CID from the image URL and use getStorageUrl
+        const cidMatch = imageUrl.match(/\/api\/objects\/([^\/]+)/);
+        if (cidMatch) {
+          imageUrl = getStorageUrl(cidMatch[1]);
+        }
+      }
+      
       return {
         ...metadata,
-        image: metadata.image
-          .replace("http://localhost:[0-9]+", process.env.NEXT_PUBLIC_HOST)
-          .replace("//api", "/api"),
+        image: imageUrl,
       };
     } catch (error) {
       console.error("Error loading metadata", error);

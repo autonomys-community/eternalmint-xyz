@@ -1,12 +1,9 @@
 import { networkIdToString } from "@/app/api/utils/network";
-import { getImageSizeErrorMessage, getImageTypeErrorMessage, isValidImageSize, isValidImageType } from "@/config/constants";
+import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType } from "@/config/constants";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
 import { NetworkId } from '@autonomys/auto-utils';
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
-
-const urlFromCid = (cid: string) =>
-  `${process.env.NEXT_PUBLIC_HOST}/api/cid/${process.env.NEXT_PUBLIC_NETWORK}/${cid}`;
 
 export const maxDuration = 60;
 
@@ -16,8 +13,6 @@ export const POST = async (req: NextRequest) => {
       { message: "AutoDrive API key is not set" },
       { status: 500 }
     );
-  if (!process.env.NEXT_PUBLIC_HOST)
-    return NextResponse.json({ message: "Host is not set" }, { status: 500 });
   if (!process.env.NEXT_PUBLIC_NETWORK)
     return NextResponse.json(
       { message: "Network is not set" },
@@ -94,7 +89,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log("Final Upload Response:", uploadedFileCid);
 
-    mediaUrl = urlFromCid(uploadedFileCid?.toString() || "");
+    mediaUrl = getStorageUrl(uploadedFileCid?.toString() || "");
 
     const metadata = {
       description,
