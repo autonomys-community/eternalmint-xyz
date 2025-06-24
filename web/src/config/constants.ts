@@ -35,7 +35,13 @@ export const BATCH_SIZES = {
 // Helper functions
 export const getStorageUrl = (cid: string) => {
   const baseUrl = process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL;
-  return baseUrl ? `${baseUrl}/${cid}` : "";
+  if (!baseUrl) return "";
+  
+  // Remove trailing slash from base URL if it exists
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  
+  // Construct the full URL
+  return `${cleanBaseUrl}/${cid}`;
 };
 
 export const isValidImageSize = (sizeInBytes: number) => {
