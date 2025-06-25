@@ -1,6 +1,6 @@
 // Static application constants (values that don't change between environments)
 
-// File upload settings (size limit now configured via NEXT_PUBLIC_MAX_IMAGE_SIZE_MB env var)
+// File upload settings are now configured via APP_CONFIG.storage
 
 // Re-export configuration from the centralized app config
 export {
