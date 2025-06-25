@@ -6,9 +6,9 @@ dataSources:
     name: EternalMintNfts
     network: autonomys-taurus
     source:
-      address: "0xC3b855011Fe6e594546582435416160Ee16cfE08"
+      address: "0x09e8798DAb58C211183c42325Ad7CCd935C11f7D"
       abi: EternalMintNfts
-      startBlock: 1932116
+      startBlock: 1984999
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
