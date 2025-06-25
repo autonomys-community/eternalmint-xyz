@@ -7,11 +7,6 @@ import { FaDiscord, FaGithub, FaHeart } from "react-icons/fa";
 export const Footer: React.FC = () => {
   const [showEnvInfo, setShowEnvInfo] = useState(false);
 
-  const evmNetwork = process.env.NEXT_PUBLIC_EVM_NETWORK || "unknown";
-  const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK || "unknown";
-  const rpcEndpoint = process.env.NEXT_PUBLIC_RPC_ENDPOINT || "unknown";
-  const contractAddress = APP_CONFIG.contract.address;
-
   return (
     <footer className="w-full text-white relative">
       <div className="flex justify-center items-center pt-4 pb-0">
@@ -52,22 +47,22 @@ export const Footer: React.FC = () => {
               <div className="space-y-1">
                 <div>
                   <span className="text-gray-400">EVM Network:</span>{" "}
-                  <span className="text-blue-400">{evmNetwork}</span>
+                  <span className="text-blue-400">{APP_CONFIG.evmNetwork.name}</span>
                 </div>
                 
                 <div>
                   <span className="text-gray-400">Storage Network:</span>{" "}
-                  <span className="text-green-400">{storageNetwork}</span>
+                  <span className="text-green-400">{APP_CONFIG.storageNetwork.name}</span>
                 </div>
                 
                 <div>
                   <span className="text-gray-400">RPC:</span>{" "}
-                  <span className="text-gray-300 break-all">{rpcEndpoint}</span>
+                  <span className="text-gray-300 break-all">{APP_CONFIG.evmNetwork.rpcUrl}</span>
                 </div>
                 
                 <div>
                   <span className="text-gray-400">Contract:</span>{" "}
-                  <span className="text-gray-300 break-all">{contractAddress}</span>
+                  <span className="text-gray-300 break-all">{APP_CONFIG.contract.address}</span>
                 </div>
               </div>
               

@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@/config/app';
 import { currentChain } from '@/config/chains';
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient, http } from 'viem';
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid method' }, { status: 400 });
     }
 
-    if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS) {
+    if (!APP_CONFIG.contract.address) {
       return NextResponse.json(
         { error: 'Contract address not configured' },
         { status: 500 }
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     // Make the contract call
     const result = await client.readContract({
-      address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+      address: APP_CONFIG.contract.address as `0x${string}`,
       abi: CONTRACT_ABI,
       functionName: method as ContractMethod,
       args: processedArgs

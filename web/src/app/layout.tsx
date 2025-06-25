@@ -1,3 +1,4 @@
+import { APP_CONFIG } from "@/config/app";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
@@ -23,7 +24,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_HOST || 'https://eternalmint.xyz'),
+  metadataBase: new URL(APP_CONFIG.host),
   title: "EternalMint Pro",
   description:
     "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
     images: ["/share.png"],
-    url: process.env.NEXT_PUBLIC_HOST || "https://eternalmint.xyz",
+    url: APP_CONFIG.host,
     siteName: "EternalMint Pro",
     locale: "en_US",
     type: "website",
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
     creator: "@marcaureleb",
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_HOST || "https://eternalmint.xyz",
+    canonical: APP_CONFIG.host,
   },
   robots: {
     index: true,
@@ -80,8 +81,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
+      {APP_CONFIG.services.analytics.googleAnalyticsId && (
+        <GoogleAnalytics gaId={APP_CONFIG.services.analytics.googleAnalyticsId} />
       )}
       <body
         className={`bg-custom-bg bg-no-repeat bg-cover ${geistSans.variable} ${geistMono.variable} ${manrope.variable} antialiased`}

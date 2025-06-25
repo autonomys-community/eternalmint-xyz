@@ -1,3 +1,4 @@
+import { APP_CONFIG } from "@/config/app";
 import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType } from "@/config/constants";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
@@ -11,21 +12,12 @@ export const POST = async (req: NextRequest) => {
       { message: "AutoDrive API key is not set" },
       { status: 500 }
     );
-  if (!process.env.NEXT_PUBLIC_STORAGE_NETWORK)
-    return NextResponse.json(
-      { message: "Storage network is not set" },
-      { status: 500 }
-    );
-  if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS)
+  if (!APP_CONFIG.contract.address)
     return NextResponse.json(
       { message: "Contract address is not set" },
       { status: 500 }
     );
-  if (!process.env.PRIVATE_KEY)
-    return NextResponse.json(
-      { message: "Private key is not set" },
-      { status: 500 }
-    );
+
 
   try {
     const formData = await req.formData();
@@ -68,22 +60,22 @@ export const POST = async (req: NextRequest) => {
     const arrayBuffer = await media.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Convert storage network to the format expected by auto-drive API
-    const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK;
+    // Use the storage network name from APP_CONFIG
+    const storageNetworkName = APP_CONFIG.storage.networkName;
     let networkString: "taurus" | "mainnet";
-    if (storageNetwork === "taurus") {
+    if (storageNetworkName === "taurus") {
       networkString = "taurus";
-    } else if (storageNetwork === "mainnet") {
+    } else if (storageNetworkName === "mainnet") {
       networkString = "mainnet";
     } else {
       return NextResponse.json(
-        { message: `Invalid storage network: ${storageNetwork}` },
+        { message: `Invalid storage network: ${storageNetworkName}` },
         { status: 500 }
       );
     }
 
     const driveClient = createAutoDriveApi({
-      apiKey: process.env.AUTO_DRIVE_API_KEY, 
+      apiKey: process.env.AUTO_DRIVE_API_KEY!, 
       network: networkString
     });
 
@@ -102,13 +94,12 @@ export const POST = async (req: NextRequest) => {
     console.log("Final Upload Response:", uploadedFileCid);
 
     const imageCid = uploadedFileCid?.toString() || "";
-    const metadataStorageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK || "taurus";
     mediaUrl = getStorageUrl(imageCid); // For response only
 
     const metadata = {
       description,
       external_url: externalLink,
-      image: `${metadataStorageNetwork}:${imageCid}`, // Store network:cid format
+      image: `${storageNetworkName}:${imageCid}`, // Store network:cid format
       name,
       attributes: [],
     };
@@ -132,10 +123,10 @@ export const POST = async (req: NextRequest) => {
     console.log("Final Upload Response:", metadataUploadCid);
 
     // Now we need to mint the NFT
-    const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
-    const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
+    const provider = new JsonRpcProvider(APP_CONFIG.evmNetwork.rpcUrl);
+    const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
     const contract = new Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+      APP_CONFIG.contract.address,
       [
         {
           type: "function",

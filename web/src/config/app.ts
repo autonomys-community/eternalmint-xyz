@@ -223,17 +223,13 @@ export const APP_CONFIG = {
     creator: '@marcaureleb',
   },
   
-  // External service settings (sensitive values from env)
+  // External service settings (client-safe values only)
   services: {
     walletConnect: {
       projectId: process.env.NEXT_PUBLIC_PROJECT_ID || '',
     },
     analytics: {
       googleAnalyticsId: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
-    },
-    // Storage API key is server-side only
-    autoDrive: {
-      apiKey: process.env.AUTO_DRIVE_API_KEY, // Server-side only
     },
   },
 } as const;
