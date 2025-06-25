@@ -32,16 +32,57 @@ export const BATCH_SIZES = {
   roleChecks: 50,
 } as const;
 
+// Storage network configuration
+const STORAGE_NETWORK_URLS = {
+  taurus: "https://demo.auto-drive.autonomys.xyz/api/objects",
+  mainnet: "https://mainnet.auto-drive.autonomys.xyz/api/objects"
+} as const;
+
 // Helper functions
+export const getStorageNetwork = () => {
+  return process.env.NEXT_PUBLIC_STORAGE_NETWORK || "taurus";
+};
+
+// Parse network:cid format
+export const parseImageString = (imageString: string): { network: string; cid: string } | null => {
+  if (!imageString || !imageString.includes(':')) {
+    return null;
+  }
+  
+  const [network, cid] = imageString.split(':', 2);
+  if (!network || !cid) {
+    return null;
+  }
+  
+  return { network, cid };
+};
+
+// Construct API URL from network:cid format
+export const getStorageApiUrl = (imageString: string): string => {
+  const parsed = parseImageString(imageString);
+  if (!parsed) {
+    return "";
+  }
+  
+  return `/api/cid/${parsed.network}/${parsed.cid}`;
+};
+
+// Construct metadata API URL from plain CID using current storage network
+export const getMetadataApiUrl = (cid: string): string => {
+  const storageNetwork = getStorageNetwork();
+  return `/api/cid/${storageNetwork}/${cid}`;
+};
+
 export const getStorageUrl = (cid: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL;
-  if (!baseUrl) return "";
+  const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK as keyof typeof STORAGE_NETWORK_URLS;
+  const baseUrl = STORAGE_NETWORK_URLS[storageNetwork];
   
-  // Remove trailing slash from base URL if it exists
-  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  if (!baseUrl) {
+    console.error(`Invalid storage network: ${storageNetwork}`);
+    return "";
+  }
   
-  // Construct the full URL
-  return `${cleanBaseUrl}/${cid}`;
+  return `${baseUrl}/${cid}`;
 };
 
 export const isValidImageSize = (sizeInBytes: number) => {

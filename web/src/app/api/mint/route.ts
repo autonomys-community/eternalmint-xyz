@@ -1,7 +1,5 @@
-import { networkIdToString } from "@/app/api/utils/network";
 import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType } from "@/config/constants";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
-import { NetworkId } from '@autonomys/auto-utils';
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,9 +11,9 @@ export const POST = async (req: NextRequest) => {
       { message: "AutoDrive API key is not set" },
       { status: 500 }
     );
-  if (!process.env.NEXT_PUBLIC_NETWORK)
+  if (!process.env.NEXT_PUBLIC_STORAGE_NETWORK)
     return NextResponse.json(
-      { message: "Network is not set" },
+      { message: "Storage network is not set" },
       { status: 500 }
     );
   if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS)
@@ -70,9 +68,23 @@ export const POST = async (req: NextRequest) => {
     const arrayBuffer = await media.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Convert storage network to the format expected by auto-drive API
+    const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK;
+    let networkString: "taurus" | "mainnet";
+    if (storageNetwork === "taurus") {
+      networkString = "taurus";
+    } else if (storageNetwork === "mainnet") {
+      networkString = "mainnet";
+    } else {
+      return NextResponse.json(
+        { message: `Invalid storage network: ${storageNetwork}` },
+        { status: 500 }
+      );
+    }
+
     const driveClient = createAutoDriveApi({
       apiKey: process.env.AUTO_DRIVE_API_KEY, 
-      network: networkIdToString(process.env.NEXT_PUBLIC_NETWORK as NetworkId)
+      network: networkString
     });
 
     const uploadedFileCid = await driveClient.uploadFile(
@@ -89,12 +101,14 @@ export const POST = async (req: NextRequest) => {
 
     console.log("Final Upload Response:", uploadedFileCid);
 
-    mediaUrl = getStorageUrl(uploadedFileCid?.toString() || "");
+    const imageCid = uploadedFileCid?.toString() || "";
+    const metadataStorageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK || "taurus";
+    mediaUrl = getStorageUrl(imageCid); // For response only
 
     const metadata = {
       description,
       external_url: externalLink,
-      image: mediaUrl,
+      image: `${metadataStorageNetwork}:${imageCid}`, // Store network:cid format
       name,
       attributes: [],
     };
@@ -118,7 +132,6 @@ export const POST = async (req: NextRequest) => {
     console.log("Final Upload Response:", metadataUploadCid);
 
     // Now we need to mint the NFT
-
     const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
     const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
     const contract = new Contract(

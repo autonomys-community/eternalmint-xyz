@@ -23,15 +23,15 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://eternalmint.xyz'),
-  title: "Eternal Mint",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_HOST || 'https://eternalmint.xyz'),
+  title: "EternalMint Pro",
   description:
     "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
   keywords: [
     "NFT",
     "Web3",
     "Blockchain",
-    "Eternal Mint",
+    "EternalMint Pro",
     "Decentralized",
     "Crypto",
     "Token",
@@ -39,18 +39,18 @@ export const metadata: Metadata = {
     "Autonomys",
   ],
   openGraph: {
-    title: "Eternal Mint",
+    title: "EternalMint Pro",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
     images: ["/share.png"],
-    url: "https://eternalmint.xyz",
-    siteName: "Eternal Mint",
+    url: process.env.NEXT_PUBLIC_HOST || "https://eternalmint.xyz",
+    siteName: "EternalMint Pro",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Eternal Mint",
+    title: "EternalMint Pro",
     description:
       "Mint Once, Own Forever: Fully Decentralized, Eternally Accessible NFTs.",
     images: ["/share.png"],
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     creator: "@marcaureleb",
   },
   alternates: {
-    canonical: "https://eternalmint.xyz",
+    canonical: process.env.NEXT_PUBLIC_HOST || "https://eternalmint.xyz",
   },
   robots: {
     index: true,

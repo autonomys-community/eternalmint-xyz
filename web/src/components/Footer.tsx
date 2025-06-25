@@ -1,8 +1,18 @@
+"use client";
+
+import { useState } from "react";
 import { FaDiscord, FaGithub, FaHeart } from "react-icons/fa";
 
 export const Footer: React.FC = () => {
+  const [showEnvInfo, setShowEnvInfo] = useState(false);
+
+  const evmNetwork = process.env.NEXT_PUBLIC_EVM_NETWORK || "unknown";
+  const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK || "unknown";
+  const rpcEndpoint = process.env.NEXT_PUBLIC_RPC_ENDPOINT || "unknown";
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "unknown";
+
   return (
-    <footer className="w-full text-white">
+    <footer className="w-full text-white relative">
       <div className="flex justify-center items-center pt-4 pb-0">
         <a
           href="https://github.com/autonomys-community/eternalmint-xyz"
@@ -24,6 +34,51 @@ export const Footer: React.FC = () => {
         >
           <FaDiscord className="text-white hover:text-gray-400" size={24} />
         </a>
+        
+        {/* Environment Info Button */}
+        <div className="ml-8 relative">
+          <button
+            onClick={() => setShowEnvInfo(!showEnvInfo)}
+            className="bg-gray-800/90 hover:bg-gray-700/90 text-white px-3 py-1 rounded text-sm font-mono border border-gray-600 transition-colors"
+          >
+            ENV
+          </button>
+          
+          {showEnvInfo && (
+            <div className="absolute bottom-12 right-0 bg-gray-800/95 text-white p-4 rounded-lg border border-gray-600 min-w-80 font-mono text-xs z-50">
+              <h3 className="font-bold mb-2 text-sm">Environment Info</h3>
+              
+              <div className="space-y-1">
+                <div>
+                  <span className="text-gray-400">EVM Network:</span>{" "}
+                  <span className="text-blue-400">{evmNetwork}</span>
+                </div>
+                
+                <div>
+                  <span className="text-gray-400">Storage Network:</span>{" "}
+                  <span className="text-green-400">{storageNetwork}</span>
+                </div>
+                
+                <div>
+                  <span className="text-gray-400">RPC:</span>{" "}
+                  <span className="text-gray-300 break-all">{rpcEndpoint}</span>
+                </div>
+                
+                <div>
+                  <span className="text-gray-400">Contract:</span>{" "}
+                  <span className="text-gray-300 break-all">{contractAddress}</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setShowEnvInfo(false)}
+                className="mt-3 text-gray-400 hover:text-white text-xs"
+              >
+                Close
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </footer>
   );
