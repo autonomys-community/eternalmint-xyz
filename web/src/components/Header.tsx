@@ -34,7 +34,9 @@ export const Header: React.FC = () => {
           src="/images/EternalMint-LogoWithText.png"
           alt="EternalMint Pro - Logo with text"
           width={255}
-          height={60}
+          height={170}
+          priority
+          sizes="255px"
         />
       </div>
       <nav className="flex gap-6 items-center ml-8">
