@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { getMetadataApiUrl, getStorageApiUrl } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import Image from "next/image";
@@ -85,7 +86,7 @@ export default function NFTSelector({ onNFTSelected, distributionMode, onDistrib
 
   // Get user's owned NFTs
   const { data: userTokensData, isLoading: tokensLoading } = useReadContract({
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    address: APP_CONFIG.contract.address as `0x${string}`,
     abi: ERC1155_ABI,
     functionName: "getUserTokens",
     args: [address!],

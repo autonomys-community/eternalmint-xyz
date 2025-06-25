@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { useState } from "react";
 import { FaDiscord, FaGithub, FaHeart } from "react-icons/fa";
 
@@ -9,7 +10,7 @@ export const Footer: React.FC = () => {
   const evmNetwork = process.env.NEXT_PUBLIC_EVM_NETWORK || "unknown";
   const storageNetwork = process.env.NEXT_PUBLIC_STORAGE_NETWORK || "unknown";
   const rpcEndpoint = process.env.NEXT_PUBLIC_RPC_ENDPOINT || "unknown";
-  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "unknown";
+  const contractAddress = APP_CONFIG.contract.address;
 
   return (
     <footer className="w-full text-white relative">

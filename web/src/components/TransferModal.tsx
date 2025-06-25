@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { currentChain } from "@/config/chains";
 import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
@@ -118,7 +119,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   };
 
   const handleTransfer = async () => {
-    if (!address || !isValidAddress || !process.env.NEXT_PUBLIC_CONTRACT_ADDRESS) {
+    if (!address || !isValidAddress) {
       return;
     }
 
@@ -127,7 +128,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
     try {
       writeContract({
-        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+        address: APP_CONFIG.contract.address as `0x${string}`,
         abi: CONTRACT_ABI,
         functionName: "safeTransferFrom",
         args: [

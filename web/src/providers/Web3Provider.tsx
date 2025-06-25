@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { currentChain } from "@/config/chains";
 import {
   darkTheme,
@@ -12,8 +13,8 @@ import { FC, ReactNode, useState } from "react";
 import { WagmiProvider } from "wagmi";
 
 const config = getDefaultConfig({
-  appName: "EternalMint Pro",
-  projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
+  appName: APP_CONFIG.name,
+  projectId: APP_CONFIG.services.walletConnect.projectId,
   chains: [currentChain],
   ssr: true,
 });
