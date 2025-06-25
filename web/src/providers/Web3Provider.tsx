@@ -12,7 +12,7 @@ import { FC, ReactNode, useState } from "react";
 import { WagmiProvider } from "wagmi";
 
 const config = getDefaultConfig({
-  appName: "Eternal Mint",
+  appName: "EternalMint Pro",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
   chains: [currentChain],
   ssr: true,

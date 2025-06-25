@@ -32,7 +32,7 @@ export const Header: React.FC = () => {
       <div className="flex items-center">
         <Image
           src="/images/EternalMint-LogoWithText.png"
-          alt="Eternal Mint - Logo with text"
+          alt="EternalMint Pro - Logo with text"
           width={255}
           height={60}
         />
