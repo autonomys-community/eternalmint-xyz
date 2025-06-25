@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { DEFAULT_ADMIN_ROLE, MINTER_ROLE } from "@/config/constants";
 import { useAccount, useReadContract } from "wagmi";
 
@@ -33,7 +34,7 @@ export function useHasMinterRole() {
         type: "function",
       },
     ],
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    address: APP_CONFIG.contract.address as `0x${string}`,
     functionName: "hasRole",
     args: [MINTER_ROLE, address!],
     query: {
@@ -68,7 +69,7 @@ export function useHasMinterRole() {
         type: "function",
       },
     ],
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    address: APP_CONFIG.contract.address as `0x${string}`,
     functionName: "hasRole",
     args: [DEFAULT_ADMIN_ROLE, address!],
     query: {
@@ -103,7 +104,7 @@ export function useCanDistributeNFT(tokenId?: string) {
         type: "function"
       }
     ],
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    address: APP_CONFIG.contract.address as `0x${string}`,
     functionName: "canUserDistribute",
     args: [address!, BigInt(tokenId || "0")],
     query: {

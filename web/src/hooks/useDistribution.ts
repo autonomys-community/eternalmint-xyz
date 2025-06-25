@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { BATCH_SIZES } from "@/config/constants";
 import { useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
@@ -67,7 +68,7 @@ export function useDistribution() {
 
     try {
       const hash = await writeContractAsync({
-        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+        address: APP_CONFIG.contract.address as `0x${string}`,
         abi: DISTRIBUTION_ABI,
         functionName: "distributeSingle",
         args: [BigInt(tokenId), recipient as `0x${string}`, BigInt(amount)]
@@ -96,7 +97,7 @@ export function useDistribution() {
 
       for (let i = 0; i < recipientChunks.length; i++) {
         const hash = await writeContractAsync({
-          address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+          address: APP_CONFIG.contract.address as `0x${string}`,
           abi: DISTRIBUTION_ABI,
           functionName: "distributeToMany",
           args: [
@@ -139,7 +140,7 @@ export function useDistribution() {
 
       for (let i = 0; i < recipientChunks.length; i++) {
         const hash = await writeContractAsync({
-          address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+          address: APP_CONFIG.contract.address as `0x${string}`,
           abi: DISTRIBUTION_ABI,
           functionName: "batchTransfer",
           args: [
@@ -150,7 +151,7 @@ export function useDistribution() {
         });
 
         lastHash = hash;
-        
+
         // If there are more batches, wait for this one to confirm before proceeding
         if (i < recipientChunks.length - 1) {
           // Wait a bit between batches to avoid nonce issues

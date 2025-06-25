@@ -1,29 +1,30 @@
 import { Chain } from "wagmi/chains";
+import { APP_CONFIG } from "./app";
 
-// Autonomys Taurus Auto EVM Configuration (Current Active Network)
-export const autonomysTaurusAutoEVM: Chain = {
-  id: 490000,
-  name: "Autonomys Taurus Auto EVM",
+// Autonomys Auto EVM Configuration (dynamically configured based on environment)
+export const autonomysAutoEVM: Chain = {
+  id: APP_CONFIG.evmNetwork.chainId,
+  name: APP_CONFIG.evmNetwork.name,
   nativeCurrency: {
-    decimals: 18,
-    name: "tAI3",
-    symbol: "tAI3",
+    decimals: APP_CONFIG.evmNetwork.currency.decimals,
+    name: APP_CONFIG.evmNetwork.currency.name,
+    symbol: APP_CONFIG.evmNetwork.currency.symbol,
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_RPC_ENDPOINT || "https://auto-evm.taurus.autonomys.xyz/ws"],
+      http: [APP_CONFIG.evmNetwork.rpcUrl],
     },
     public: {
-      http: [process.env.NEXT_PUBLIC_RPC_ENDPOINT || "https://auto-evm.taurus.autonomys.xyz/ws"],
+      http: [APP_CONFIG.evmNetwork.rpcUrl],
     },
   },
   blockExplorers: {
     default: {
-      name: "Taurus Auto EVM Explorer",
-      url: "https://explorer.auto-evm.taurus.autonomys.xyz",
+      name: `${APP_CONFIG.evmNetwork.name} Explorer`,
+      url: APP_CONFIG.evmNetwork.blockExplorer,
     },
   },
-  testnet: true,
+  testnet: APP_CONFIG.evmNetwork.testnet,
 };
 
 // TODO: Autonomys Mainnet Auto EVM Configuration (Coming Soon)
@@ -52,10 +53,7 @@ export const autonomysTaurusAutoEVM: Chain = {
 //   testnet: false,
 // };
 
-// Export the current active chain
-export const currentChain = autonomysTaurusAutoEVM;
-
-// Legacy export for backward compatibility (DEPRECATED - use autonomysTaurusAutoEVM)
-export const autonomysNovaTestnet = autonomysTaurusAutoEVM;
+// Export current chain for use throughout the app
+export const currentChain = autonomysAutoEVM;
 
  
