@@ -97,14 +97,20 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
         key={nft.id}
         className="flex flex-row items-start gap-6 p-4 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
       >
-        <Image
-          src={metadata?.image ?? ""}
-          alt={metadata?.name ?? ""}
-          className="w-20 h-24 rounded-lg"
-          width={640}
-          height={256}
-          unoptimized
-        />
+        {metadata?.image ? (
+          <Image
+            src={metadata.image}
+            alt={metadata?.name ?? ""}
+            className="w-20 h-24 rounded-lg"
+            width={640}
+            height={256}
+            unoptimized
+          />
+        ) : (
+          <div className="w-20 h-24 rounded-lg bg-gray-800 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          </div>
+        )}
         <div className="flex-1">
           <h3 className="text-xl font-semibold">{metadata?.name}</h3>
           <p className="text-sm text-gray-400">{metadata?.description}</p>
