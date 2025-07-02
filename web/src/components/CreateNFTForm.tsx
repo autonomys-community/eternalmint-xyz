@@ -3,6 +3,7 @@
 import { APP_CONFIG } from "@/config/app";
 import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType, SUPPORTED_IMAGE_TYPES } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
+import { getImageOptimizationSettings, isAnimatedGif } from "@/utils/mediaUtils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
@@ -44,6 +45,12 @@ export const CreateNFTForm: React.FC = () => {
   const [fileError, setFileError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nftDetails, setNftDetails] = useState<NftDetails | null>(null);
+
+  // Check if uploaded file is an animated GIF
+  const isUploadedGif = isAnimatedGif(formData.media?.type);
+  
+  // Get optimization settings for the uploaded media
+  const imageSettings = getImageOptimizationSettings(formData.media?.type);
 
   useEffect(
     () => setFormData((prevData) => ({ ...prevData, creator: address || "" })),
@@ -225,17 +232,23 @@ export const CreateNFTForm: React.FC = () => {
             >
               <input {...getInputProps()} disabled={isSubmitting || !hasMinterRole} />
               {formData.media ? (
-                <div>
+                <div className="relative">
                   <Image
                     src={URL.createObjectURL(formData.media)}
                     alt="Preview"
                     className="w-full h-80 max-h-[160px] object-cover rounded-lg"
                     width={640}
                     height={256}
-                    unoptimized
+                    {...imageSettings}
                   />
+                  {isUploadedGif && (
+                    <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      ANIMATED GIF
+                    </div>
+                  )}
                   <p className="mt-1 p-0 text-sm">
                     {(formData.media as File).name}
+                    {isUploadedGif && " • Animated GIF"}
                   </p>
                 </div>
               ) : (
@@ -252,10 +265,15 @@ export const CreateNFTForm: React.FC = () => {
                   {isDragActive ? (
                     <p>Drop the files here ...</p>
                   ) : (
-                    <p className="text-white">
-                      Drag &apos;n&apos; Drop A File Here, Or Click To Select A
-                      File
-                    </p>
+                    <div className="text-center text-white">
+                      <p>
+                        Drag &apos;n&apos; Drop A File Here, Or Click To Select A
+                        File
+                      </p>
+                      <p className="text-sm text-gray-300 mt-2">
+                        Supports JPG, PNG, GIF (including animated), and WebP
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
@@ -310,7 +328,7 @@ export const CreateNFTForm: React.FC = () => {
 
         <div
           {...getRootProps()}
-          className="flex-1 w-full border border-white/15 rounded-lg bg-white/10 flex items-center justify-center"
+          className="flex-1 w-full border border-white/15 rounded-lg bg-white/10 flex items-center justify-center relative"
         >
           <Image
             src={
@@ -322,8 +340,13 @@ export const CreateNFTForm: React.FC = () => {
             className="h-full max-h-[520px] max-w-[450px] w-full object-cover rounded-lg"
             width={640}
             height={256}
-            unoptimized
+            {...(formData.media ? imageSettings : { unoptimized: true })}
           />
+          {formData.media && isUploadedGif && (
+            <div className="absolute top-4 right-4 bg-black/70 text-white text-sm px-3 py-1.5 rounded">
+              ANIMATED GIF
+            </div>
+          )}
         </div>
       </div>
 

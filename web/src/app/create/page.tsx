@@ -1,6 +1,7 @@
 "use client";
 
 import { AccessDenied } from "@/components/AccessDenied";
+import { AnimatedNftInfo } from "@/components/AnimatedNftInfo";
 import { CreateNFTForm } from "@/components/CreateNFTForm";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -31,7 +32,10 @@ export default function CreatePage() {
           message="You need MINTER_ROLE permissions to create NFTs. Contact an administrator to get access."
         />
       ) : (
-        <CreateNFTForm />
+        <div className="space-y-6">
+          <AnimatedNftInfo />
+          <CreateNFTForm />
+        </div>
       )}
       
       <Footer />
