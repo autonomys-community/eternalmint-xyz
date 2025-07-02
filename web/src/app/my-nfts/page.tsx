@@ -11,9 +11,15 @@ export default function MyNFTsPage() {
         <Header />
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">My Eternal NFTs</h1>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="text-4xl">🃏</div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                My NFT Collection
+              </h1>
+              <div className="text-4xl">🎴</div>
+            </div>
             <p className="text-xl text-gray-300">
-              View all the Eternal NFTs you own
+              Your eternal collectible cards • Trade, transfer, and showcase
             </p>
           </div>
           
