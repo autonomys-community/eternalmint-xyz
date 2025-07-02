@@ -1,60 +1,61 @@
 // Static application constants (values that don't change between environments)
 
-// File upload settings (size limit now configured via NEXT_PUBLIC_MAX_IMAGE_SIZE_MB env var)
+// File upload settings are now configured via APP_CONFIG.storage
 
-export const SUPPORTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png", 
-  "image/gif",
-  "image/webp"
-] as const;
+// Re-export configuration from the centralized app config
+export {
+  APP_CONFIG, CURRENT_CONTRACT, CURRENT_EVM_NETWORK,
+  CURRENT_STORAGE_NETWORK, getImageSizeErrorMessage,
+  getImageTypeErrorMessage,
+  isDevelopment, isProduction, isStaging, isValidImageSize,
+  isValidImageType
+} from './app';
 
-// Smart contract constants
-export const MINTER_ROLE = "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6" as const;
-export const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+import { APP_CONFIG, STORAGE_NETWORKS, type StorageNetworkName } from './app';
 
-// UI constants
-export const ITEMS_PER_PAGE = 12;
-export const TOAST_DURATION = 5000;
-export const MAX_RETRIES = 3;
+// Helper functions for the new network:cid format
+export const parseImageString = (imageString: string): { network: string; cid: string } | null => {
+  if (!imageString || !imageString.includes(':')) {
+    return null;
+  }
+  
+  const [network, cid] = imageString.split(':', 2);
+  if (!network || !cid) {
+    return null;
+  }
+  
+  return { network, cid };
+};
 
-// Gas limits for different operations
-export const GAS_LIMITS = {
-  mint: 500000,
-  distribute: 2500000,
-  transfer: 100000,
-  roleCheck: 50000,
-} as const;
+// Construct API URL from network:cid format
+export const getStorageApiUrl = (imageString: string): string => {
+  const parsed = parseImageString(imageString);
+  if (!parsed) {
+    return "";
+  }
+  
+  return `/api/cid/${parsed.network}/${parsed.cid}`;
+};
 
-// Batch processing limits
-export const BATCH_SIZES = {
-  distribution: 100,
-  roleChecks: 50,
-} as const;
+// Construct metadata API URL from plain CID using current storage network
+export const getMetadataApiUrl = (cid: string): string => {
+  return `/api/cid/${APP_CONFIG.storage.networkName}/${cid}`;
+};
 
-// Helper functions
+// Get storage network API URL directly
+export const getStorageNetworkApiUrl = (storageNetwork: StorageNetworkName = APP_CONFIG.storage.networkName): string => {
+  return STORAGE_NETWORKS[storageNetwork].apiUrl;
+};
+
+// Legacy helper for backward compatibility (deprecated - use getStorageApiUrl instead)
 export const getStorageUrl = (cid: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_PERMANENT_STORAGE_URL;
-  return baseUrl ? `${baseUrl}/${cid}` : "";
+  const storageNetwork = APP_CONFIG.storage.networkName;
+  const baseUrl = STORAGE_NETWORKS[storageNetwork].apiUrl;
+  return `${baseUrl}/${cid}`;
 };
 
-export const isValidImageSize = (sizeInBytes: number) => {
-  const maxSizeMB = parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE_MB || "5");
-  const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  return sizeInBytes <= maxSizeBytes;
-};
-
-export const isValidImageType = (mimeType: string) => {
-  return SUPPORTED_IMAGE_TYPES.includes(mimeType as (typeof SUPPORTED_IMAGE_TYPES)[number]);
-};
-
-// Centralized error messages
-export const getImageSizeErrorMessage = () => {
-  const maxSizeMB = process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE_MB || "5";
-  return `File is larger than ${maxSizeMB}MB.`;
-};
-
-export const getImageTypeErrorMessage = () => {
-  const supportedTypes = SUPPORTED_IMAGE_TYPES.map(type => type.split('/')[1].toUpperCase()).join(', ');
-  return `Only ${supportedTypes} files are accepted.`;
-}; 
+// Legacy exports that are still being used
+export const SUPPORTED_IMAGE_TYPES = APP_CONFIG.storage.supportedImageTypes;
+export const MINTER_ROLE = APP_CONFIG.contract.roles.minter;
+export const DEFAULT_ADMIN_ROLE = APP_CONFIG.contract.roles.admin;
+export const BATCH_SIZES = APP_CONFIG.contract.batchSizes; 

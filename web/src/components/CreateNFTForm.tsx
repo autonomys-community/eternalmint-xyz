@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType, SUPPORTED_IMAGE_TYPES } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import { sendGAEvent } from "@next/third-parties/google";
@@ -75,7 +76,7 @@ export const CreateNFTForm: React.FC = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: acceptedFileTypes,
-    maxSize: parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_SIZE_MB || "5") * 1024 * 1024,
+    maxSize: APP_CONFIG.storage.maxImageSizeMB * 1024 * 1024,
     validator: (file) => {
       // Use our centralized validation functions
       if (!isValidImageType(file.type)) {

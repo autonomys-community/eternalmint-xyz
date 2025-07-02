@@ -1,6 +1,6 @@
 "use client";
 
-import { getStorageUrl } from "@/config/constants";
+import { getMetadataApiUrl, getStorageApiUrl, getStorageUrl } from "@/config/constants";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -20,14 +20,21 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
 
   const handleLoadMetadata = useCallback(async (cid: string) => {
     try {
-      const res = await fetch(`/api/cid/taurus/${cid}`);
+      // For metadata CIDs from subgraph, construct URL directly using current storage network
+      const metadataApiUrl = getMetadataApiUrl(cid);
+      
+      const res = await fetch(metadataApiUrl);
+      
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      
       const metadata = await res.json();
-      console.log("metadata", metadata);
+      const imageUrl = metadata.image ? getStorageApiUrl(metadata.image) : "";
       return {
         ...metadata,
-        image: metadata.image
-          .replace("http://localhost:[0-9]+", process.env.NEXT_PUBLIC_HOST)
-          .replace("//api", "/api"),
+        image: imageUrl,
       };
     } catch (error) {
       console.error("Error loading metadata", error);
@@ -39,14 +46,12 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
     async (cid: string) => {
       try {
         const metadata = await handleLoadMetadata(cid);
-        console.log("metadata", metadata);
         setMetadata(metadata);
       } catch (error) {
         console.error("Error loading metadata", error);
         await new Promise((resolve) => setTimeout(resolve, 500));
         try {
           const metadata = await handleLoadMetadata(cid);
-          console.log("metadata", metadata);
           setMetadata(metadata);
         } catch (error) {
           console.error("Error loading metadata a second time", error);
@@ -92,14 +97,22 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
         key={nft.id}
         className="flex flex-row items-start gap-6 p-4 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
       >
-        <Image
-          src={metadata?.image ?? ""}
-          alt={metadata?.name ?? ""}
-          className="w-20 h-24 rounded-lg"
-          width={640}
-          height={256}
-          unoptimized
-        />
+        {metadata?.image ? (
+          <div className="w-20 h-24 rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center">
+            <Image
+              src={metadata.image}
+              alt={metadata?.name ?? ""}
+              className="max-w-full max-h-full object-contain rounded-lg"
+              width={640}
+              height={256}
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="w-20 h-24 rounded-lg bg-gray-800 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          </div>
+        )}
         <div className="flex-1">
           <h3 className="text-xl font-semibold">{metadata?.name}</h3>
           <p className="text-sm text-gray-400">{metadata?.description}</p>

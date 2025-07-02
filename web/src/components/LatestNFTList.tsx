@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
 import { useEffect, useState } from "react";
 import { NFT, NftMinted } from "../types";
 import { NftContainer } from "./NftContainer";
@@ -9,7 +10,7 @@ export const LatestNFTList: React.FC = () => {
 
   useEffect(() => {
     const fetchNFTs = async () => {
-      const response = await fetch(process.env.NEXT_PUBLIC_SUBGRAPH_API!, {
+      const response = await fetch(APP_CONFIG.contract.subgraphUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

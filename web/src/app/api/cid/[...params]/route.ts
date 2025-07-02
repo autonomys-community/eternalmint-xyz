@@ -1,6 +1,4 @@
-import { networkIdToString } from "@/app/api/utils/network";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
-import { NetworkId } from '@autonomys/auto-utils';
 import { NextRequest, NextResponse } from "next/server";
 
 const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
@@ -37,39 +35,56 @@ const detectFileType = async (arrayBuffer: ArrayBuffer): Promise<string> => {
   return "unknown";
 };
 
-async function fetchFromAutoDrive(cid: string, networkId: NetworkId) {
+async function fetchFromAutoDrive(cid: string, storageNetwork: string) {
   const apiKey = process.env.AUTO_DRIVE_API_KEY;
-  if (apiKey == undefined) {
+  if (!apiKey) {
     throw new Error("AUTO_DRIVE_API_KEY is not set");
   }
-
-  const api = createAutoDriveApi({
-    apiKey,
-    network: networkIdToString(networkId)
-  });
+  
   try {
+    const api = createAutoDriveApi({
+      apiKey,
+      network: storageNetwork as "taurus" | "mainnet"
+    });
+    
     const stream = await api.downloadFile(cid);
+    
     let file = Buffer.alloc(0);
     for await (const chunk of stream) {
       file = Buffer.concat([file, chunk]);
     }
+    
     return file;
   } catch (error) {
-    console.error("Error downloading file:", error);
-    throw new Error("CID not found");
+    console.error("AutoDrive download failed:", {
+      message: error instanceof Error ? error.message : String(error),
+      cid,
+      network: storageNetwork
+    });
+    throw new Error(`AutoDrive download failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 export async function GET(req: NextRequest) {
   try {
     const pathname = req.nextUrl.pathname;
-    const cid = pathname.split("/").slice(3)[1]; // Get CID from URL path
-    const network = pathname.split("/").slice(3)[0] as NetworkId; // Get network from URL path
+    
+    // For URL /api/cid/taurus/bafkr6igbtskqntm5crr4danp6wkp4kkt4vgwufwfxxrwjiog4qiijkwfoi
+    // Split gives: ["", "api", "cid", "taurus", "bafkr6igbtskqntm5crr4danp6wkp4kkt4vgwufwfxxrwjiog4qiijkwfoi"]
+    const pathParts = pathname.split("/");
+    const storageNetwork = pathParts[3]; // "taurus" or "mainnet"
+    const cid = pathParts[4]; // the actual CID
+    
     if (!cid) {
       return NextResponse.json({ error: "CID is required" }, { status: 400 });
     }
+    
+    if (!storageNetwork || !["taurus", "mainnet"].includes(storageNetwork)) {
+      return NextResponse.json({ error: "Invalid storage network" }, { status: 400 });
+    }
 
-    const fileBuffer = await fetchFromAutoDrive(cid, network);
+    const fileBuffer = await fetchFromAutoDrive(cid, storageNetwork);
+    
     //@ts-expect-error - fileBuffer is a Buffer
     const fileType = await detectFileType(fileBuffer);
 
@@ -97,7 +112,7 @@ export async function GET(req: NextRequest) {
       }
     }
   } catch (error) {
-    console.error("Error processing request:", error);
+    console.error("CID API - Error processing request:", error);
     return NextResponse.json(
       { error: "Failed to process request" },
       { status: 500 }

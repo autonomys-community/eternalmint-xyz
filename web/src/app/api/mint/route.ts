@@ -1,12 +1,8 @@
-import { networkIdToString } from "@/app/api/utils/network";
-import { getImageSizeErrorMessage, getImageTypeErrorMessage, isValidImageSize, isValidImageType } from "@/config/constants";
+import { APP_CONFIG } from "@/config/app";
+import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType } from "@/config/constants";
 import { createAutoDriveApi } from "@autonomys/auto-drive";
-import { NetworkId } from '@autonomys/auto-utils';
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 import { NextRequest, NextResponse } from "next/server";
-
-const urlFromCid = (cid: string) =>
-  `${process.env.NEXT_PUBLIC_HOST}/api/cid/${process.env.NEXT_PUBLIC_NETWORK}/${cid}`;
 
 export const maxDuration = 60;
 
@@ -16,23 +12,29 @@ export const POST = async (req: NextRequest) => {
       { message: "AutoDrive API key is not set" },
       { status: 500 }
     );
-  if (!process.env.NEXT_PUBLIC_HOST)
-    return NextResponse.json({ message: "Host is not set" }, { status: 500 });
-  if (!process.env.NEXT_PUBLIC_NETWORK)
-    return NextResponse.json(
-      { message: "Network is not set" },
-      { status: 500 }
-    );
-  if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS)
+  if (!APP_CONFIG.contract.address)
     return NextResponse.json(
       { message: "Contract address is not set" },
       { status: 500 }
     );
-  if (!process.env.PRIVATE_KEY)
+
+  // Check for server-side environment variables that must remain in env  
+  if (!process.env.PRIVATE_KEY) {
     return NextResponse.json(
       { message: "Private key is not set" },
       { status: 500 }
     );
+  }
+
+  // Validate private key format (should be a 64-character hex string, optionally prefixed with 0x)
+  const privateKey = process.env.PRIVATE_KEY.trim();
+  if (!/^(0x)?[0-9a-fA-F]{64}$/.test(privateKey)) {
+    return NextResponse.json(
+      { message: "Private key has invalid format" },
+      { status: 500 }
+    );
+  }
+
 
   try {
     const formData = await req.formData();
@@ -75,9 +77,23 @@ export const POST = async (req: NextRequest) => {
     const arrayBuffer = await media.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Use the storage network name from APP_CONFIG
+    const storageNetworkName = APP_CONFIG.storage.networkName;
+    let networkString: "taurus" | "mainnet";
+    if (storageNetworkName === "taurus") {
+      networkString = "taurus";
+    } else if (storageNetworkName === "mainnet") {
+      networkString = "mainnet";
+    } else {
+      return NextResponse.json(
+        { message: `Invalid storage network: ${storageNetworkName}` },
+        { status: 500 }
+      );
+    }
+
     const driveClient = createAutoDriveApi({
-      apiKey: process.env.AUTO_DRIVE_API_KEY, 
-      network: networkIdToString(process.env.NEXT_PUBLIC_NETWORK as NetworkId)
+      apiKey: process.env.AUTO_DRIVE_API_KEY!, 
+      network: networkString
     });
 
     const uploadedFileCid = await driveClient.uploadFile(
@@ -94,12 +110,13 @@ export const POST = async (req: NextRequest) => {
 
     console.log("Final Upload Response:", uploadedFileCid);
 
-    mediaUrl = urlFromCid(uploadedFileCid?.toString() || "");
+    const imageCid = uploadedFileCid?.toString() || "";
+    mediaUrl = getStorageUrl(imageCid); // For response only
 
     const metadata = {
       description,
       external_url: externalLink,
-      image: mediaUrl,
+      image: `${storageNetworkName}:${imageCid}`, // Store network:cid format
       name,
       attributes: [],
     };
@@ -123,11 +140,11 @@ export const POST = async (req: NextRequest) => {
     console.log("Final Upload Response:", metadataUploadCid);
 
     // Now we need to mint the NFT
-
-    const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_ENDPOINT);
-    const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
+    const provider = new JsonRpcProvider(APP_CONFIG.evmNetwork.rpcUrl);
+    const privateKey = process.env.PRIVATE_KEY!.trim();
+    const wallet = new Wallet(privateKey, provider);
     const contract = new Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+      APP_CONFIG.contract.address,
       [
         {
           type: "function",

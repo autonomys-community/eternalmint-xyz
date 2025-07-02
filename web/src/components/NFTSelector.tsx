@@ -1,6 +1,7 @@
 "use client";
 
-import { getStorageUrl } from "@/config/constants";
+import { APP_CONFIG } from "@/config/app";
+import { getMetadataApiUrl, getStorageApiUrl } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -85,7 +86,7 @@ export default function NFTSelector({ onNFTSelected, distributionMode, onDistrib
 
   // Get user's owned NFTs
   const { data: userTokensData, isLoading: tokensLoading } = useReadContract({
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    address: APP_CONFIG.contract.address as `0x${string}`,
     abi: ERC1155_ABI,
     functionName: "getUserTokens",
     args: [address!],
@@ -152,19 +153,11 @@ export default function NFTSelector({ onNFTSelected, distributionMode, onDistrib
           // Fetch metadata to get image URL
           let imageUrl = '';
           try {
-            const metadataResponse = await fetch(`/api/cid/taurus/${cidData.result}`);
+            // For metadata CIDs from contract, construct URL directly using current storage network
+            const metadataApiUrl = getMetadataApiUrl(cidData.result);
+            const metadataResponse = await fetch(metadataApiUrl);
             const metadata = await metadataResponse.json();
-            
-            // Validate the image URL from metadata
-            if (metadata.image) {
-              // Check if it's a valid image URL (starts with http/https)
-              if (metadata.image.startsWith('http')) {
-                imageUrl = metadata.image;
-              } else {
-                // If it's a relative path or CID, construct the full URL
-                imageUrl = getStorageUrl(metadata.image);
-              }
-            }
+            imageUrl = metadata.image ? getStorageApiUrl(metadata.image) : "";
           } catch (error) {
             console.error(`Error fetching metadata for token ${tokenIds[i]}:`, error);
           }
