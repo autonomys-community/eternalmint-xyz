@@ -102,25 +102,24 @@ export const CONTRACT_DEPLOYMENTS = {
     evmNetwork: 'taurus' as NetworkName,
     storageNetwork: 'taurus' as StorageNetworkName,
     contractAddress: '0x09e8798DAb58C211183c42325Ad7CCd935C11f7D',
-    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-dev/v0.0.16',
-    version: '1.0.0',
-    deployedAt: '2024-01-01', // Update with actual deployment date
+    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-dev/v0.0.23',
+    deployedAt: '2025-06-25', // Update with actual deployment date
   },
   staging: {
     evmNetwork: 'taurus' as NetworkName,
     storageNetwork: 'taurus' as StorageNetworkName,
     contractAddress: '0x09e8798DAb58C211183c42325Ad7CCd935C11f7D',
-    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-dev/v0.0.16',
+    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-dev/v0.0.23',
     version: '1.0.0',
-    deployedAt: '2024-01-01', // Update with actual deployment date
+    deployedAt: '2025-06-25', // Update with actual deployment date
   },
   production: {
     evmNetwork: 'taurus' as NetworkName, // Will change to 'mainnet' when ready
     storageNetwork: 'mainnet' as StorageNetworkName, // Could use mainnet storage even with taurus EVM
-    contractAddress: '0x09e8798DAb58C211183c42325Ad7CCd935C11f7D', // Will be different for production
-    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-prod/v1.0.0', // Different subgraph for production
+    contractAddress: '0x8A7325f9eA80D65c8f69F3797F345Cc831EC01f4', // Will be different for production
+    subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-pro/v0.0.2', // Different subgraph for production
     version: '1.0.0',
-    deployedAt: '2024-01-01', // Update with actual deployment date
+    deployedAt: '2025-06-25', // Update with actual deployment date
   },
 } as const;
 
@@ -217,6 +216,7 @@ export const APP_CONFIG = {
     maxRetries: 3,
   },
   
+  // TODO
   // Social/SEO settings
   social: {
     twitter: '@eternalmint_xyz',
