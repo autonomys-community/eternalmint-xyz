@@ -1,5 +1,7 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/app";
+
 interface AnimatedNftInfoProps {
   className?: string;
 }
@@ -33,7 +35,7 @@ export const AnimatedNftInfo: React.FC<AnimatedNftInfoProps> = ({ className = ""
           <span className="text-blue-400 mt-1">💡</span>
           <div>
             <p className="text-white font-medium">Pro Tip</p>
-            <p>Keep GIF file sizes reasonable (under {5}MB) for optimal loading performance</p>
+            <p>Keep GIF file sizes reasonable (under {APP_CONFIG.storage.maxImageSizeMB}MB) for optimal loading performance</p>
           </div>
         </div>
       </div>
