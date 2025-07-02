@@ -71,6 +71,13 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
     [metadata]
   );
 
+  // Check if the image is an animated GIF based on file extension or metadata
+  const isAnimatedGif = useMemo(() => {
+    if (!metadata?.image) return false;
+    return metadata.image.toLowerCase().includes('.gif') || 
+           metadata.image.toLowerCase().includes('gif');
+  }, [metadata?.image]);
+
   useEffect(() => {
     if (metadataCid) handleLoadMetadataWithFallback(metadataCid);
   }, [metadataCid, handleLoadMetadataWithFallback]);
@@ -98,15 +105,21 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
         className="flex flex-row items-start gap-6 p-4 rounded-xl shadow-lg border border-white/15 backdrop-filter backdrop-blur-md"
       >
         {metadata?.image ? (
-          <div className="w-20 h-24 rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center">
+          <div className="w-20 h-24 rounded-lg overflow-hidden bg-gray-800 flex items-center justify-center relative">
             <Image
               src={metadata.image}
               alt={metadata?.name ?? ""}
               className="max-w-full max-h-full object-contain rounded-lg"
               width={640}
               height={256}
-              unoptimized
+              unoptimized={isAnimatedGif} // Don't optimize GIFs to preserve animation
+              priority={false}
             />
+            {isAnimatedGif && (
+              <div className="absolute top-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded text-center">
+                GIF
+              </div>
+            )}
           </div>
         ) : (
           <div className="w-20 h-24 rounded-lg bg-gray-800 flex items-center justify-center">
