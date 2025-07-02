@@ -103,6 +103,7 @@ export const CONTRACT_DEPLOYMENTS = {
     storageNetwork: 'taurus' as StorageNetworkName,
     contractAddress: '0x09e8798DAb58C211183c42325Ad7CCd935C11f7D',
     subgraphUrl: 'https://api.studio.thegraph.com/query/114204/eternalmint-dev/v0.0.23',
+    version: '1.0.0',
     deployedAt: '2025-06-25', // Update with actual deployment date
   },
   staging: {
