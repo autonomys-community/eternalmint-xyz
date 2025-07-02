@@ -11,9 +11,16 @@ export const isAnimatedGif = (mimeType?: string): boolean => {
 
 /**
  * Check if a file URL likely contains an animated GIF
+ * Checks for .gif file extension specifically, not just 'gif' anywhere in the URL
  */
-export const isLikelyAnimatedGif = (url: string): boolean => {
-  return url.toLowerCase().includes('.gif') || url.toLowerCase().includes('gif');
+export const isLikelyAnimatedGif = (url?: string | null): boolean => {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+  
+  const lowerUrl = url.toLowerCase();
+  // Check for .gif extension specifically, not just 'gif' anywhere
+  return lowerUrl.endsWith('.gif') || lowerUrl.includes('.gif?') || lowerUrl.includes('.gif#');
 };
 
 /**
