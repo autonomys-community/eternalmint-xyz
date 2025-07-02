@@ -3,6 +3,7 @@
 import { APP_CONFIG } from "@/config/app";
 import { getImageSizeErrorMessage, getImageTypeErrorMessage, getStorageUrl, isValidImageSize, isValidImageType, SUPPORTED_IMAGE_TYPES } from "@/config/constants";
 import { useHasMinterRole } from "@/hooks/useHasMinterRole";
+import { getImageOptimizationSettings, isAnimatedGif } from "@/utils/mediaUtils";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
@@ -46,7 +47,10 @@ export const CreateNFTForm: React.FC = () => {
   const [nftDetails, setNftDetails] = useState<NftDetails | null>(null);
 
   // Check if uploaded file is an animated GIF
-  const isAnimatedGif = formData.media?.type === 'image/gif';
+  const isUploadedGif = isAnimatedGif(formData.media?.type);
+  
+  // Get optimization settings for the uploaded media
+  const imageSettings = getImageOptimizationSettings(formData.media?.type);
 
   useEffect(
     () => setFormData((prevData) => ({ ...prevData, creator: address || "" })),
@@ -235,16 +239,16 @@ export const CreateNFTForm: React.FC = () => {
                     className="w-full h-80 max-h-[160px] object-cover rounded-lg"
                     width={640}
                     height={256}
-                    unoptimized={isAnimatedGif} // Don't optimize GIFs to preserve animation
+                    {...imageSettings}
                   />
-                  {isAnimatedGif && (
+                  {isUploadedGif && (
                     <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                       ANIMATED GIF
                     </div>
                   )}
                   <p className="mt-1 p-0 text-sm">
                     {(formData.media as File).name}
-                    {isAnimatedGif && " • Animated GIF"}
+                    {isUploadedGif && " • Animated GIF"}
                   </p>
                 </div>
               ) : (
@@ -336,9 +340,9 @@ export const CreateNFTForm: React.FC = () => {
             className="h-full max-h-[520px] max-w-[450px] w-full object-cover rounded-lg"
             width={640}
             height={256}
-            unoptimized={formData.media ? isAnimatedGif : true} // Don't optimize GIFs to preserve animation
+            {...(formData.media ? imageSettings : { unoptimized: true })}
           />
-          {formData.media && isAnimatedGif && (
+          {formData.media && isUploadedGif && (
             <div className="absolute top-4 right-4 bg-black/70 text-white text-sm px-3 py-1.5 rounded">
               ANIMATED GIF
             </div>

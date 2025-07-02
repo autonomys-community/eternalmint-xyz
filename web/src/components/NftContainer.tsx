@@ -1,6 +1,7 @@
 "use client";
 
 import { getMetadataApiUrl, getStorageApiUrl, getStorageUrl } from "@/config/constants";
+import { getImageOptimizationSettings, isLikelyAnimatedGif } from "@/utils/mediaUtils";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -72,11 +73,15 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
   );
 
   // Check if the image is an animated GIF based on file extension or metadata
-  const isAnimatedGif = useMemo(() => {
+  const isAnimated = useMemo(() => {
     if (!metadata?.image) return false;
-    return metadata.image.toLowerCase().includes('.gif') || 
-           metadata.image.toLowerCase().includes('gif');
+    return isLikelyAnimatedGif(metadata.image);
   }, [metadata?.image]);
+
+  // Get optimization settings for the image
+  const imageSettings = useMemo(() => {
+    return getImageOptimizationSettings(isAnimated ? 'image/gif' : undefined);
+  }, [isAnimated]);
 
   useEffect(() => {
     if (metadataCid) handleLoadMetadataWithFallback(metadataCid);
@@ -112,10 +117,9 @@ export const NftContainer: React.FC<NftContainerProps> = ({ nft, showTransferBut
               className="max-w-full max-h-full object-contain rounded-lg"
               width={640}
               height={256}
-              unoptimized={isAnimatedGif} // Don't optimize GIFs to preserve animation
-              priority={false}
+              {...imageSettings}
             />
-            {isAnimatedGif && (
+            {isAnimated && (
               <div className="absolute top-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded text-center">
                 GIF
               </div>
