@@ -26,15 +26,31 @@ export const DepthProvider: React.FC<DepthProviderProps> = ({ children }) => {
 
   // Load preference from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('nft-depth-enabled');
-    if (saved !== null) {
-      setDepthEnabled(JSON.parse(saved));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('nft-depth-enabled');
+        if (saved !== null) {
+          const parsed = JSON.parse(saved);
+          if (typeof parsed === 'boolean') {
+            setDepthEnabled(parsed);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load depth preference from localStorage:', error);
+      // Fall back to default value (false)
     }
   }, []);
 
   // Save preference to localStorage when changed
   useEffect(() => {
-    localStorage.setItem('nft-depth-enabled', JSON.stringify(depthEnabled));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('nft-depth-enabled', JSON.stringify(depthEnabled));
+      }
+    } catch (error) {
+      console.warn('Failed to save depth preference to localStorage:', error);
+    }
   }, [depthEnabled]);
 
   const toggleDepth = () => {
