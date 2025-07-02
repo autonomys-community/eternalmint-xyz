@@ -18,6 +18,23 @@ export const POST = async (req: NextRequest) => {
       { status: 500 }
     );
 
+  // Check for server-side environment variables that must remain in env  
+  if (!process.env.PRIVATE_KEY) {
+    return NextResponse.json(
+      { message: "Private key is not set" },
+      { status: 500 }
+    );
+  }
+
+  // Validate private key format (should be a 64-character hex string, optionally prefixed with 0x)
+  const privateKey = process.env.PRIVATE_KEY.trim();
+  if (!/^(0x)?[0-9a-fA-F]{64}$/.test(privateKey)) {
+    return NextResponse.json(
+      { message: "Private key has invalid format" },
+      { status: 500 }
+    );
+  }
+
 
   try {
     const formData = await req.formData();
@@ -124,7 +141,8 @@ export const POST = async (req: NextRequest) => {
 
     // Now we need to mint the NFT
     const provider = new JsonRpcProvider(APP_CONFIG.evmNetwork.rpcUrl);
-    const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
+    const privateKey = process.env.PRIVATE_KEY!.trim();
+    const wallet = new Wallet(privateKey, provider);
     const contract = new Contract(
       APP_CONFIG.contract.address,
       [
