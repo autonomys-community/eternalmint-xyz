@@ -88,6 +88,11 @@ export async function GET(req: NextRequest) {
     //@ts-expect-error - fileBuffer is a Buffer
     const fileType = await detectFileType(fileBuffer);
 
+    // Check file size for caching decisions
+    const fileSizeBytes = fileBuffer.length;
+    const isLargeFile = fileSizeBytes > 2 * 1024 * 1024; // 2MB threshold
+    const isAnimatedGif = fileType === "image/gif";
+
     // Try to parse as JSON first
     try {
       const jsonString = fileBuffer.toString("utf-8");
@@ -95,19 +100,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(parsedJson);
     } catch {
       // If not JSON, treat as file/image
+      const headers: Record<string, string> = {
+        "Content-Type": fileType,
+      };
+
+      // Add cache control headers for large files or animated GIFs
+      if (isLargeFile || isAnimatedGif) {
+        headers["Cache-Control"] = "public, max-age=31536000, immutable"; // Cache for 1 year but let browser handle
+        headers["X-Large-File"] = "true";
+      }
+
+      // Add specific headers for animated GIFs
+      if (isAnimatedGif) {
+        headers["X-Animated-GIF"] = "true";
+      }
+
       if (fileType === "image/svg+xml") {
         return new NextResponse(fileBuffer.toString("utf-8"), {
           status: 200,
-          headers: {
-            "Content-Type": fileType,
-          },
+          headers,
         });
       } else {
         return new NextResponse(fileBuffer, {
           status: 200,
-          headers: {
-            "Content-Type": fileType,
-          },
+          headers,
         });
       }
     }

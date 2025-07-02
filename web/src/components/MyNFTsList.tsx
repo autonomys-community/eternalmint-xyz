@@ -5,7 +5,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { NFT } from "../types";
-import { NftContainer } from "./NftContainer";
+import { NFTCard } from "./NFTCard";
 
 interface OwnedNFT {
   id: string;
@@ -154,28 +154,40 @@ export const MyNFTsList: React.FC = () => {
 
   if (!isConnected) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
-        <p className="text-gray-300 mb-6">
-          Connect your wallet to view your Eternal NFTs
-        </p>
-        <button
-          onClick={openConnectModal}
-          className="px-6 py-3 bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-lg hover:opacity-90 transition-opacity"
-        >
-          Connect Wallet
-        </button>
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <div className="text-6xl mb-6">🔐</div>
+          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Unlock Your Collection
+          </h2>
+          <p className="text-gray-300 mb-8 leading-relaxed">
+            Connect your wallet to access your trading card collection and see all your eternal NFTs
+          </p>
+          <button
+            onClick={openConnectModal}
+            className="px-8 py-4 bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-xl font-semibold hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            🔗 Connect Wallet
+          </button>
+        </div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400 mx-auto mb-4"></div>
-        <h2 className="text-2xl font-bold mb-2">Loading Your NFTs...</h2>
+      <div className="text-center py-16">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500/20 border-t-purple-500 mx-auto mb-6"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-2xl animate-pulse">🎴</div>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Loading Your Collection...
+        </h2>
         <p className="text-gray-300">
-          Please wait while we fetch your Eternal NFTs
+          Shuffling through your trading cards
         </p>
       </div>
     );
@@ -183,16 +195,19 @@ export const MyNFTsList: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 max-w-md mx-auto">
-          <h2 className="text-2xl font-bold mb-2 text-red-200">Error</h2>
-          <p className="text-red-300 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-          >
-            Try Again
-          </button>
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <div className="text-6xl mb-6">😵</div>
+          <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-8 backdrop-blur-md">
+            <h2 className="text-2xl font-bold mb-3 text-red-200">Oops! Cards Scattered</h2>
+            <p className="text-red-300 mb-6 leading-relaxed">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-lg font-medium"
+            >
+              🔄 Gather Cards Again
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -200,50 +215,76 @@ export const MyNFTsList: React.FC = () => {
 
   if (ownedNFTs.length === 0) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">No NFTs Found</h2>
-        <p className="text-gray-300 mb-6">
-          You don&apos;t own any Eternal NFTs yet
-        </p>
-        <a
-          href="/create"
-          className="px-6 py-3 bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-lg hover:opacity-90 transition-opacity"
-        >
-          Create Your First NFT
-        </a>
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <div className="text-6xl mb-6">🎴</div>
+          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Start Your Collection
+          </h2>
+          <p className="text-gray-300 mb-8 leading-relaxed">
+            You don&apos;t have any trading cards yet. Create your first eternal NFT card and start building your unique collection!
+          </p>
+          <div className="space-y-4">
+            <a
+              href="/create"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-[#1E58FC] via-[#D914E4] to-[#F10419] text-white rounded-xl font-semibold hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              🎨 Create Your First Card
+            </a>
+            <div className="text-sm text-gray-400">
+              or browse existing NFTs to trade
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">
-          Your Eternal NFTs ({ownedNFTs.length})
-        </h2>
-        <p className="text-gray-300">
-          You own {ownedNFTs.filter(nft => nft.balance > 0).reduce((total, nft) => total + nft.balance, 0)} total NFTs
-        </p>
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm">{ownedNFTs.length}</span>
+          </div>
+          <h2 className="text-2xl font-bold">
+            Your Trading Cards
+          </h2>
+        </div>
+        <div className="flex flex-wrap gap-6 text-sm text-gray-300">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+            <span>{ownedNFTs.length} unique cards</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+            <span>{ownedNFTs.filter(nft => nft.balance > 0).reduce((total, nft) => total + nft.balance, 0)} total copies</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+            <span>Premium collection</span>
+          </div>
+        </div>
       </div>
 
-      <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-2 items-stretch auto-rows-fr">
         {ownedNFTs.map((nft) => (
-          <NftContainer 
+          <NFTCard 
             key={nft.id} 
             nft={{
               id: nft.id,
               image: nft.image,
               name: nft.name,
               description: nft.description,
+              creator: '', // Not needed for this view
               quantity: nft.quantity,
               cid: nft.cid,
               tokenId: nft.tokenId
             } as NFT}
-            showTransferButton={true}
             onQuantityUpdate={updateNFTQuantity}
           />
         ))}
-      </ul>
+      </div>
     </div>
   );
 }; 
