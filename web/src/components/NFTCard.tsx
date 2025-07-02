@@ -1,6 +1,6 @@
 "use client";
 
-import { getStorageUrl } from "@/config/constants";
+import { getMetadataApiUrl, getStorageApiUrl, getStorageUrl } from "@/config/constants";
 import { useDepth } from "@/contexts/DepthContext";
 import { getImageOptimizationSettings, isLikelyAnimatedGif } from "@/utils/mediaUtils";
 import Image from "next/image";
@@ -37,11 +37,18 @@ export const NFTCard: React.FC<NFTCardProps> = ({ nft, onQuantityUpdate }) => {
 
   const handleLoadMetadata = useCallback(async (cid: string) => {
     try {
-      const res = await fetch(`/api/cid/taurus/${cid}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // Use configurable metadata API URL instead of hardcoded "taurus"
+      const metadataApiUrl = getMetadataApiUrl(cid);
+      const res = await fetch(metadataApiUrl);
+      
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
       
       const metadata = await res.json();
-      const imageUrl = metadata.image ? `/api/cid/taurus/${metadata.image.split(':').pop()}` : "";
+      // Use configurable storage API URL instead of hardcoded parsing
+      const imageUrl = metadata.image ? getStorageApiUrl(metadata.image) : "";
       
       return {
         ...metadata,
@@ -54,7 +61,8 @@ export const NFTCard: React.FC<NFTCardProps> = ({ nft, onQuantityUpdate }) => {
   }, []);
 
   useEffect(() => {
-    const metadataCid = nft.cid?.split("/").pop();
+    // Extract metadata CID consistently with other components
+    const metadataCid = nft?.cid ? nft.cid.split("/").pop() : null;
     if (metadataCid) {
       handleLoadMetadata(metadataCid)
         .then(setMetadata)
